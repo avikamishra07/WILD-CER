@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Publications — Wild-CER{% endblock %}
+{% block content %}
+<div class="inner-hero">
+  <div class="ih-inner">
+    <div class="ih-breadcrumb"><a href="{{ url_for('home') }}">Wild-CER</a><span>/</span>Publications</div>
+    <div class="ih-label">Research</div>
+    <h1 class="ih-h1">Publications</h1>
+  </div>
+</div>
+
+<section style="padding:6rem 0;"><div class="wrap">
+  <div class="label reveal">Scientific Work</div>
+  <h2 class="display-title reveal" data-delay="60" style="margin-bottom:1rem;">Research &amp; <em>Publications</em></h2>
+    <p style="font-size:.9rem;color:var(--text-dim);max-width:580px;line-height:1.85;margin-bottom:3.5rem;" data-delay="100">Wild-CER contributes to peer-reviewed research in wildlife health, conservation biology, and One Health. Our publications are listed below. For full-text copies or collaboration enquiries, contact us directly.</p>
+  <div style="background:var(--surface);border:1px solid var(--border);padding:3rem;text-align:center;max-width:560px;margin:0 auto;" class="reveal" data-delay="60">
+    <div style="font-size:3.5rem;margin-bottom:1.25rem;opacity:.6;">&#128216;</div>
+    <div class="label" style="justify-content:center;margin-bottom:.75rem;">Publications</div>
+    <h3 style="font-family:var(--serif);font-size:1.5rem;color:var(--mist);margin-bottom:.9rem;">View All Research</h3>
+    <p style="font-size:.85rem;color:var(--text-dim);max-width:380px;margin:0 auto 1.75rem;line-height:1.75;">Our research spans wildlife disease surveillance, species conservation planning, vulture population studies, and One Health frameworks. Contact us for access to papers and reports.</p>
+    <a href="{{ url_for('contact') }}" class="btn-primary">Contact for Publications &#8594;</a>
+  </div>
+</div></section>
+{% endblock %}

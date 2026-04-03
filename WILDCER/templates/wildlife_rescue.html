@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+{% block title %}Report Wildlife Emergency — Wild-CER{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+.rescue-hero{padding:4.5rem 0 0;position:relative;}
+.rh-split{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 64px);}
+.rh-img{position:relative;overflow:hidden;}
+.rh-img img{width:100%;height:100%;object-fit:cover;display:block;opacity:.7;}
+.rh-img-overlay{position:absolute;inset:0;background:linear-gradient(to right,transparent 50%,var(--void));}
+.rh-form-panel{background:var(--void);padding:4rem 3rem;overflow-y:auto;border-left:1px solid var(--border);}
+.rh-label{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ember);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;}
+.rh-label::before{content:'';width:20px;height:1px;background:var(--ember);}
+.rh-h1{font-family:var(--serif);font-size:2.8rem;font-weight:300;color:var(--mist);line-height:1.1;margin-bottom:1.1rem;}
+.rh-sub{font-size:.85rem;color:var(--text-dim);line-height:1.8;margin-bottom:2.5rem;max-width:420px;}
+.hotline{background:rgba(212,90,42,.08);border:1px solid rgba(212,90,42,.25);padding:.85rem 1.25rem;display:flex;align-items:center;gap:1rem;margin-bottom:2rem;}
+.hotline-icon{font-size:1.3rem;}
+.hotline-text{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);}
+.hotline-num{font-family:var(--serif);font-size:1.25rem;color:var(--ember);}
+
+/* FORM */
+.fl{display:block;font-family:var(--mono);font-size:.6rem;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.4rem;}
+.fi{width:100%;background:var(--surface);border:1px solid var(--border2);padding:.7rem 1rem;font-family:var(--sans);font-size:.87rem;color:var(--mist);outline:none;transition:border-color .2s;-webkit-appearance:none;border-radius:0;cursor:pointer;}
+/* ── SEARCHABLE SPECIES COMBOBOX ────────────── */
+.sp-wrap{position:relative;background:var(--void);}
+.sp-input-row{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border2);transition:border-color .2s;}
+.sp-input-row:focus-within{border-color:rgba(201,168,76,.5);background:var(--surface2);}
+.sp-search{flex:1;background:transparent;border:none;padding:.7rem 1rem;font-family:var(--sans);font-size:.87rem;color:var(--mist);outline:none;cursor:text;}
+.sp-search::placeholder{color:rgba(232,226,214,.2);}
+.sp-arrow{padding:0 .9rem;color:var(--text-dim);font-size:.65rem;cursor:pointer;user-select:none;transition:transform .2s;}
+.sp-arrow.open{transform:rotate(180deg);}
+.sp-dropdown{display:none;position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--border2);border-top:none;z-index:200;max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.sp-dropdown.open{display:block;}
+.sp-group-hd{font-family:var(--mono);font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-light);padding:.5rem 1rem .2rem;opacity:.7;pointer-events:none;}
+.sp-opt{padding:.55rem 1rem;font-size:.85rem;color:var(--text-dim);cursor:pointer;transition:background .12s,color .12s;}
+.sp-opt:hover,.sp-opt.active{background:rgba(201,168,76,.08);color:var(--mist);}
+.sp-opt.hidden{display:none;}
+.sp-no-match{padding:.75rem 1rem;font-family:var(--mono);font-size:.65rem;color:var(--text-dim);letter-spacing:.1em;text-align:center;display:none;}
+
+/* ── CAMERA CAPTURE ─────────────────────────── */
+.cam-wrap{background:var(--surface);border:1px solid var(--border2);}
+.cam-notice{background:rgba(212,90,42,.06);border-bottom:1px solid rgba(212,90,42,.2);padding:.6rem 1rem;display:flex;align-items:flex-start;gap:.6rem;font-family:var(--mono);font-size:.57rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(212,90,42,.8);line-height:1.5;}
+.cam-notice b{flex-shrink:0;}
+.cam-idle{padding:1.5rem 1rem;text-align:center;}
+.cam-idle-icon{font-size:1.8rem;margin-bottom:.4rem;opacity:.5;}
+.cam-idle-txt{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.9rem;}
+.cam-start-btn{background:var(--ember);color:#fff;border:none;padding:.55rem 1.3rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.cam-start-btn:hover{background:#b84a20;}
+.cam-live{display:none;position:relative;}
+#cam-video{width:100%;max-height:220px;object-fit:cover;display:block;background:#000;}
+.cam-live-bar{display:flex;align-items:center;justify-content:space-between;padding:.5rem .75rem;background:rgba(0,0,0,.6);position:absolute;bottom:0;left:0;right:0;}
+.cam-capture-btn{background:var(--ember);color:#fff;border:2px solid #fff;width:44px;height:44px;border-radius:50%;font-size:1rem;cursor:pointer;transition:transform .15s,background .15s;display:flex;align-items:center;justify-content:center;}
+.cam-capture-btn:hover{transform:scale(1.08);background:#b84a20;}
+.cam-cancel-btn{background:transparent;color:rgba(255,255,255,.5);border:none;font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:.25rem .5rem;}
+.cam-cancel-btn:hover{color:#fff;}
+.cam-preview{display:none;position:relative;}
+#cam-canvas{display:none;}
+#cam-preview-img{width:100%;max-height:220px;object-fit:cover;display:block;}
+.cam-retake-bar{padding:.5rem .75rem;background:rgba(0,0,0,.55);position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;}
+.cam-retake-btn{background:transparent;color:rgba(255,255,255,.65);border:1px solid rgba(255,255,255,.25);font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:.28rem .7rem;}
+.cam-retake-btn:hover{color:#fff;border-color:rgba(255,255,255,.6);}
+.cam-ok-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:#34d399;display:flex;align-items:center;gap:.35rem;}
+.cam-err{background:rgba(212,90,42,.12);border-top:1px solid rgba(212,90,42,.25);padding:.5rem 1rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:rgba(212,90,42,.9);display:none;}
+.fi:focus{border-color:rgba(201,168,76,.5);background:var(--surface2);}
+.fi::placeholder{color:rgba(232,226,214,.2);}
+textarea.fi{min-height:120px;resize:vertical;line-height:1.65;}
+/* upload zone styles removed - camera capture used instead */
+#ip{display:none;margin-top:.75rem;position:relative;}
+#ip img{width:100%;max-height:160px;object-fit:cover;display:block;}
+.rbtn{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.65);color:var(--mist);border:none;width:22px;height:22px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#rmap{height:180px;border:1px solid var(--border2);}
+.bsub{width:100%;background:var(--ember);color:#fff;border:none;padding:.9rem 1.5rem;font-family:var(--mono);font-size:.68rem;font-weight:400;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.bsub:hover:not(:disabled){background:#b84a20;}
+.bsub:disabled{opacity:.5;cursor:not-allowed;}
+.result-box{display:none;background:rgba(58,125,92,.08);border:1px solid rgba(58,125,92,.25);padding:2rem;text-align:center;animation:rb .4s ease;}
+@keyframes rb{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.result-box h3{font-family:var(--serif);font-size:1.5rem;color:var(--mist);margin-bottom:.5rem;}
+.case-num{font-family:var(--mono);font-size:.78rem;letter-spacing:.2em;color:var(--accent-light);display:inline-block;margin:.5rem 0;}
+.fstep{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1.5rem;}
+.fg{margin-bottom:1.25rem;}
+.sidebar-info{padding:1.75rem 0;border-top:1px solid var(--border);margin-top:2rem;}
+.si-item{display:flex;align-items:flex-start;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.82rem;color:var(--text-dim);}
+.si-item:last-child{border:none;}
+.si-n{font-family:var(--mono);font-size:.58rem;width:20px;color:var(--accent-light);flex-shrink:0;padding-top:1px;}
+
+/* MOBILE */
+@media(max-width:900px){
+  .rh-split{grid-template-columns:1fr;min-height:auto;}
+  .rh-img{display:none;}
+  .rh-form-panel{padding:3rem 1.5rem;}
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="rh-split" id="report">
+  <div class="rh-img">
+    <img src="https://wildcer.org/wp-content/uploads/2026/01/IMG_8676-scaled.jpg" alt="Wildlife Rescue"/>
+    <div class="rh-img-overlay"></div>
+    <div style="position:absolute;bottom:3rem;left:2.5rem;right:2.5rem;z-index:3;">
+      <div style="font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1.5rem;">What happens after you report</div>
+      <div class="si-item" style="border-color:rgba(255,255,255,.07);"><div class="si-n">01</div><div>Your report is received instantly by our team</div></div>
+      <div class="si-item" style="border-color:rgba(255,255,255,.07);"><div class="si-n">02</div><div>A wildlife veterinarian reviews the case</div></div>
+      <div class="si-item" style="border-color:rgba(255,255,255,.07);"><div class="si-n">03</div><div>Nearest rescue team is alerted and dispatched</div></div>
+      <div class="si-item" style="border-color:rgba(255,255,255,.07);"><div class="si-n">04</div><div>Animal receives veterinary care and rehabilitation</div></div>
+      <div class="si-item" style="border-color:rgba(255,255,255,.07);border:none;"><div class="si-n">05</div><div>Released back to the wild when recovered</div></div>
+    </div>
+  </div>
+  <div class="rh-form-panel">
+    <div class="rh-label">Emergency Report</div>
+    <h1 class="rh-h1">Report an<br>Injured Animal</h1>
+    <p class="rh-sub">Spotted a wild animal in distress? Our veterinary rescue team responds as fast as possible to every report.</p>
+    <div class="hotline"><div class="hotline-icon">&#9650;</div><div><div class="hotline-text">Emergency Hotline</div><div class="hotline-num">+91 9922 408 432</div></div></div>
+
+    <form id="rf" enctype="multipart/form-data">
+      <div class="fstep">— Reporter Information (Optional)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;">
+        <div class="fg" style="background:var(--void);padding:0;margin:0;"><label class="fl" style="padding:.75rem 1rem .3rem;">Your Name</label><input type="text" class="fi" name="reporter_name" placeholder="Full name"/></div>
+        <div class="fg" style="background:var(--void);padding:0;margin:0;"><label class="fl" style="padding:.75rem 1rem .3rem;">Contact Number</label><input type="tel" class="fi" name="reporter_phone" placeholder="+91 XXXXX XXXXX"/></div>
+      </div>
+
+      <div class="fstep" style="margin-top:1.75rem;">— Animal Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;">
+        <div class="sp-wrap">
+          <label class="fl" style="padding:.75rem 1rem .3rem;">Species / Animal <span style="color:var(--ember);">*</span></label>
+          <!-- Hidden input submitted with form -->
+          <input type="hidden" name="species" id="sp" required/>
+          <div class="sp-input-row">
+            <input class="sp-search" id="sp-search" type="text" placeholder="Type to search — e.g. Tiger, Owl, Cobra..." autocomplete="off" spellcheck="false"/>
+            <span class="sp-arrow" id="sp-arrow">&#9660;</span>
+          </div>
+          <div class="sp-dropdown" id="sp-dropdown">
+            <!-- Big Cats & Carnivores -->
+            <div class="sp-group-hd">Big Cats &amp; Carnivores</div>
+            <div class="sp-opt" data-val="Bengal Tiger">Bengal Tiger</div>
+            <div class="sp-opt" data-val="Leopard">Leopard</div>
+            <div class="sp-opt" data-val="Sloth Bear">Sloth Bear</div>
+            <div class="sp-opt" data-val="Striped Hyena">Striped Hyena</div>
+            <div class="sp-opt" data-val="Indian Wolf">Indian Wolf</div>
+            <div class="sp-opt" data-val="Jungle Cat">Jungle Cat</div>
+            <div class="sp-opt" data-val="Rusty-spotted Cat">Rusty-spotted Cat</div>
+            <div class="sp-opt" data-val="Jackal">Jackal</div>
+            <!-- Elephants & Large Mammals -->
+            <div class="sp-group-hd">Elephants &amp; Large Mammals</div>
+            <div class="sp-opt" data-val="Indian Elephant">Indian Elephant</div>
+            <div class="sp-opt" data-val="Indian Gaur">Indian Gaur (Bison)</div>
+            <div class="sp-opt" data-val="Sambar Deer">Sambar Deer</div>
+            <div class="sp-opt" data-val="Spotted Deer (Chital)">Spotted Deer (Chital)</div>
+            <div class="sp-opt" data-val="Nilgai (Blue Bull)">Nilgai (Blue Bull)</div>
+            <div class="sp-opt" data-val="Wild Boar">Wild Boar</div>
+            <div class="sp-opt" data-val="Indian Porcupine">Indian Porcupine</div>
+            <div class="sp-opt" data-val="Indian Pangolin">Indian Pangolin</div>
+            <!-- Raptors & Birds of Prey -->
+            <div class="sp-group-hd">Raptors &amp; Birds of Prey</div>
+            <div class="sp-opt" data-val="Indian Vulture">Indian Vulture</div>
+            <div class="sp-opt" data-val="White-rumped Vulture">White-rumped Vulture</div>
+            <div class="sp-opt" data-val="Red-headed Vulture">Red-headed Vulture</div>
+            <div class="sp-opt" data-val="Egyptian Vulture">Egyptian Vulture</div>
+            <div class="sp-opt" data-val="Crested Serpent Eagle">Crested Serpent Eagle</div>
+            <div class="sp-opt" data-val="Changeable Hawk-Eagle">Changeable Hawk-Eagle</div>
+            <div class="sp-opt" data-val="Brahminy Kite">Brahminy Kite</div>
+            <div class="sp-opt" data-val="Black Kite">Black Kite</div>
+            <div class="sp-opt" data-val="Osprey">Osprey</div>
+            <div class="sp-opt" data-val="Peregrine Falcon">Peregrine Falcon</div>
+            <div class="sp-opt" data-val="Shikra">Shikra</div>
+            <!-- Owls -->
+            <div class="sp-group-hd">Owls</div>
+            <div class="sp-opt" data-val="Barn Owl">Barn Owl</div>
+            <div class="sp-opt" data-val="Indian Eagle Owl">Indian Eagle Owl</div>
+            <div class="sp-opt" data-val="Jungle Owlet">Jungle Owlet</div>
+            <div class="sp-opt" data-val="Spotted Owlet">Spotted Owlet</div>
+            <div class="sp-opt" data-val="Mottled Wood Owl">Mottled Wood Owl</div>
+            <div class="sp-opt" data-val="Brown Fish Owl">Brown Fish Owl</div>
+            <!-- Reptiles -->
+            <div class="sp-group-hd">Reptiles</div>
+            <div class="sp-opt" data-val="Indian Rock Python">Indian Rock Python</div>
+            <div class="sp-opt" data-val="Indian Cobra">Indian Cobra</div>
+            <div class="sp-opt" data-val="Russell's Viper">Russell's Viper</div>
+            <div class="sp-opt" data-val="Rat Snake">Rat Snake</div>
+            <div class="sp-opt" data-val="Indian Monitor Lizard">Indian Monitor Lizard (Goh)</div>
+            <div class="sp-opt" data-val="Indian Star Tortoise">Indian Star Tortoise</div>
+            <div class="sp-opt" data-val="Indian Flapshell Turtle">Indian Flapshell Turtle</div>
+            <div class="sp-opt" data-val="Indian Softshell Turtle">Indian Softshell Turtle</div>
+            <div class="sp-opt" data-val="Gharial">Gharial</div>
+            <div class="sp-opt" data-val="Mugger Crocodile">Mugger Crocodile</div>
+            <!-- Other Birds -->
+            <div class="sp-group-hd">Other Birds</div>
+            <div class="sp-opt" data-val="Grey Heron">Grey Heron</div>
+            <div class="sp-opt" data-val="Painted Stork">Painted Stork</div>
+            <div class="sp-opt" data-val="Indian Peacock">Indian Peacock</div>
+            <div class="sp-opt" data-val="Indian Roller">Indian Roller (Neelkanth)</div>
+            <div class="sp-opt" data-val="Hornbill">Hornbill</div>
+            <div class="sp-opt" data-val="Black Ibis">Black Ibis</div>
+            <div class="sp-opt" data-val="Sarus Crane">Sarus Crane</div>
+            <!-- Small Mammals -->
+            <div class="sp-group-hd">Small Mammals</div>
+            <div class="sp-opt" data-val="Indian Hare">Indian Hare</div>
+            <div class="sp-opt" data-val="Indian Giant Flying Squirrel">Indian Giant Flying Squirrel</div>
+            <div class="sp-opt" data-val="Common Palm Civet">Common Palm Civet</div>
+            <div class="sp-opt" data-val="Small Indian Mongoose">Small Indian Mongoose</div>
+            <div class="sp-opt" data-val="Smooth-coated Otter">Smooth-coated Otter</div>
+            <!-- Other -->
+            <div class="sp-group-hd">Other</div>
+            <div class="sp-opt" data-val="Other">Other wild animal (describe in condition)</div>
+            <div class="sp-no-match" id="sp-no-match">No match — select "Other" or keep typing</div>
+          </div>
+        </div>
+        <div style="background:var(--void);"><label class="fl" style="padding:.75rem 1rem .3rem;">Location <span style="color:var(--ember);">*</span></label><input type="text" class="fi" name="location" id="loc" placeholder="Village, area, district..." required/></div>
+      </div>
+      <div class="fg" style="margin-bottom:1px;">
+        <label class="fl" style="padding:.75rem 1rem .3rem;">Describe the Condition <span style="color:var(--ember);">*</span></label>
+        <textarea class="fi" name="description" id="desc" placeholder="Injuries, behaviour, surroundings — the more detail, the faster our response." required></textarea>
+      </div>
+      <div class="fg" style="margin-bottom:1px;">
+        <label class="fl" style="padding:.75rem 1rem .3rem;">How long has the animal been injured? <span style="color:var(--text-dim);text-transform:none;letter-spacing:0;font-size:.58rem;">(if known)</span></label>
+        <select class="fi" name="injured_since" id="injured_since" style="cursor:pointer;">
+          <option value="unknown">Unknown / Not sure</option>
+          <option value="just_now">Just found it now</option>
+          <option value="lt_1h">Less than 1 hour</option>
+          <option value="1_3h">1 – 3 hours</option>
+          <option value="3_6h">3 – 6 hours</option>
+          <option value="6_12h">6 – 12 hours</option>
+          <option value="gt_12h">More than 12 hours</option>
+        </select>
+        <div style="font-family:var(--mono);font-size:.57rem;letter-spacing:.1em;color:var(--text-dim);padding:.35rem 0 0;opacity:.7;">Longer injury time increases the case priority score.</div>
+      </div>
+      <div class="fg" style="margin-bottom:1px;">
+        <label class="fl" style="padding:.75rem 1rem .3rem;">Live Photo of Animal <span style="color:var(--ember);">*</span> <span style="color:var(--text-dim);text-transform:none;letter-spacing:0;font-size:.58rem;">(required — take photo on-site)</span></label>
+        <div class="cam-wrap">
+          <div class="cam-notice">
+            <b>&#9888;</b>
+            <span>This photo must be taken live at the scene using your camera. False or irrelevant reports misuse emergency resources. Submitting fake reports may result in being blocked.</span>
+          </div>
+          <!-- Idle state -->
+          <div class="cam-idle" id="cam-idle">
+            <div class="cam-idle-icon">&#128247;</div>
+            <div class="cam-idle-txt">Take a photo of the injured animal at the rescue site</div>
+            <button type="button" class="cam-start-btn" id="cam-start-btn" onclick="startCamera()">&#x25B6; Open Camera</button>
+          </div>
+          <!-- Live camera view -->
+          <div class="cam-live" id="cam-live">
+            <video id="cam-video" autoplay playsinline muted></video>
+            <div class="cam-live-bar">
+              <button type="button" class="cam-cancel-btn" onclick="stopCamera()">Cancel</button>
+              <button type="button" class="cam-capture-btn" onclick="capturePhoto()" title="Take photo">&#x25CF;</button>
+              <button type="button" class="cam-cancel-btn" id="cam-flip-btn" onclick="flipCamera()" title="Flip camera">&#x21BB;</button>
+            </div>
+          </div>
+          <!-- Preview -->
+          <div class="cam-preview" id="cam-preview">
+            <img id="cam-preview-img" src="" alt="Captured photo"/>
+            <canvas id="cam-canvas"></canvas>
+            <div class="cam-retake-bar">
+              <button type="button" class="cam-retake-btn" onclick="retakePhoto()">&#x21BA; Retake</button>
+              <span class="cam-ok-label" id="cam-ok-label">&#10003; Photo captured</span>
+            </div>
+          </div>
+          <div class="cam-err" id="cam-err"></div>
+        </div>
+        <!-- Hidden input carries the base64 image data to submit -->
+        <input type="hidden" name="image_b64" id="image_b64"/>
+        <!-- Keep original file input hidden for server compatibility -->
+        <input type="file" name="image" id="ii" accept="image/*" style="display:none;"/>
+      </div>
+      <div class="fg" style="margin-bottom:1px;">
+        <label class="fl" style="padding:.75rem 1rem .3rem;">Pin Location on Map <span style="color:var(--text-dim);text-transform:none;letter-spacing:0;font-size:.58rem;">(click map)</span></label>
+        <div id="rmap"></div>
+        <input type="hidden" name="latitude" id="lat"/><input type="hidden" name="longitude" id="lng"/>
+      </div>
+      <button type="submit" class="bsub" id="sb" style="margin-top:1px;">&#9650; Submit Emergency Report</button>
+    </form>
+
+    <div class="result-box" id="rb">
+      <div style="font-size:2.5rem;margin-bottom:.75rem;opacity:.7;">&#10003;</div>
+      <h3>Report Received</h3>
+      <div class="case-num" id="cnum">Case #00001</div>
+      <p style="font-size:.84rem;color:var(--text-dim);line-height:1.75;margin:.75rem 0 1.5rem;">Our veterinary rescue team has been notified. For urgent cases we dispatch immediately. If life-threatening, also call <span style="color:var(--ember);">+91 9922 408 432</span>.</p>
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+        <button onclick="resetF()" class="btn-primary">+ Report Another</button>
+        <a href="{{ url_for('donate') }}" class="btn-ember">&#9829; Support Our Work</a>
+      </div>
+    </div>
+
+    <div class="sidebar-info">
+      <div style="font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1rem;">Species We Rescue</div>
+      <p style="font-size:.8rem;color:var(--text-dim);line-height:1.7;">Tigers, leopards, sloth bears, vultures, elephants, wolves, hyenas, owls, eagles, raptors, snakes, turtles — all wild animals in India.</p>
+      <div style="margin-top:1.25rem;display:flex;flex-wrap:wrap;gap:.4rem;">
+        {% for s in ["Tiger","Leopard","Sloth Bear","Vulture","Elephant","Eagle","Owl","Cobra","Tortoise","Wolf"] %}
+        <span style="font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;color:var(--text-dim);padding:.22rem .6rem;border:1px solid var(--border);">{{ s }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── MAP ──────────────────────────────────────────────────────────────────────
+const map=L.map('rmap',{zoomControl:false}).setView([21,78],5);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'CartoDB'}).addTo(map);
+L.control.zoom({position:'bottomright'}).addTo(map);
+let pin=null;
+map.on('click',e=>{
+  const{lat,lng}=e.latlng;
+  document.getElementById('lat').value=lat.toFixed(6);
+  document.getElementById('lng').value=lng.toFixed(6);
+  if(pin)map.removeLayer(pin);
+  pin=L.circleMarker([lat,lng],{radius:8,color:'var(--ember)',fillColor:'#d45a2a',fillOpacity:.85,weight:2})
+    .addTo(map)
+    .bindPopup('<span style="font-family:monospace;font-size:11px;">'+lat.toFixed(4)+', '+lng.toFixed(4)+'</span>')
+    .openPopup();
+});
+
+// ── SEARCHABLE SPECIES COMBOBOX ──────────────────────────────────────────────
+const spSearch  = document.getElementById('sp-search');
+const spDropdown= document.getElementById('sp-dropdown');
+const spArrow   = document.getElementById('sp-arrow');
+const spInput   = document.getElementById('sp');       // hidden input
+const spNoMatch = document.getElementById('sp-no-match');
+const spOpts    = Array.from(document.querySelectorAll('.sp-opt'));
+
+function openDropdown(){spDropdown.classList.add('open');spArrow.classList.add('open');}
+function closeDropdown(){spDropdown.classList.remove('open');spArrow.classList.remove('open');}
+
+spSearch.addEventListener('focus', ()=>{filterSpecies();openDropdown();});
+spSearch.addEventListener('input', ()=>{filterSpecies();openDropdown();});
+spArrow.addEventListener('click', ()=>{
+  if(spDropdown.classList.contains('open')){closeDropdown();}
+  else{filterSpecies();openDropdown();spSearch.focus();}
+});
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.sp-wrap'))closeDropdown();
+});
+
+function filterSpecies(){
+  const q=spSearch.value.trim().toLowerCase();
+  let anyVisible=false;
+  // Show/hide group headers based on whether any option in their group matches
+  let curHd=null;
+  const children=spDropdown.children;
+  for(let i=0;i<children.length;i++){
+    const el=children[i];
+    if(el.classList.contains('sp-group-hd')){curHd=el;el.style.display='';}
+    else if(el.classList.contains('sp-opt')){
+      const text=el.textContent.toLowerCase();
+      const val=(el.dataset.val||'').toLowerCase();
+      const show=!q||text.includes(q)||val.includes(q);
+      el.classList.toggle('hidden',!show);
+      if(show)anyVisible=true;
+    }
+  }
+  // Hide group headers if all their options are hidden
+  let hd=null;
+  for(let i=0;i<children.length;i++){
+    const el=children[i];
+    if(el.classList.contains('sp-group-hd')){hd=el;}
+    else if(el.classList.contains('sp-opt')&&hd){
+      if(!el.classList.contains('hidden')){hd=null;} // hd has visible child, keep it
+    }
+  }
+  // Second pass: hide headers with no visible children
+  let pendingHd=null;
+  for(let i=0;i<children.length;i++){
+    const el=children[i];
+    if(el.classList.contains('sp-group-hd')){pendingHd=el;pendingHd.style.display='';}
+    else if(el.classList.contains('sp-opt')){
+      if(!el.classList.contains('hidden')&&pendingHd){pendingHd=null;}
+    }
+  }
+  if(pendingHd)pendingHd.style.display='none';
+  spNoMatch.style.display=anyVisible?'none':'block';
+}
+
+spOpts.forEach(opt=>{
+  opt.addEventListener('mousedown',e=>{
+    e.preventDefault();
+    spInput.value=opt.dataset.val;
+    spSearch.value=opt.textContent;
+    spOpts.forEach(o=>o.classList.remove('active'));
+    opt.classList.add('active');
+    closeDropdown();
+    spSearch.style.borderColor='';
+    validateSpecies();
+  });
+});
+
+// Keyboard nav
+spSearch.addEventListener('keydown',e=>{
+  const visible=spOpts.filter(o=>!o.classList.contains('hidden'));
+  const cur=visible.findIndex(o=>o.classList.contains('active'));
+  if(e.key==='ArrowDown'){e.preventDefault();const n=cur<visible.length-1?cur+1:0;visible.forEach(o=>o.classList.remove('active'));visible[n]?.classList.add('active');visible[n]?.scrollIntoView({block:'nearest'});}
+  else if(e.key==='ArrowUp'){e.preventDefault();const n=cur>0?cur-1:visible.length-1;visible.forEach(o=>o.classList.remove('active'));visible[n]?.classList.add('active');visible[n]?.scrollIntoView({block:'nearest'});}
+  else if(e.key==='Enter'){e.preventDefault();const a=visible.find(o=>o.classList.contains('active'));if(a){a.dispatchEvent(new Event('mousedown'));}}
+  else if(e.key==='Escape'){closeDropdown();}
+});
+
+function validateSpecies(){
+  if(!spInput.value){spSearch.style.outline='1px solid var(--ember)';return false;}
+  spSearch.style.outline='';return true;
+}
+
+// ── CAMERA CAPTURE ───────────────────────────────────────────────────────────
+let stream=null, facingMode='environment', capturedBlob=null;
+const video      = document.getElementById('cam-video');
+const canvas     = document.getElementById('cam-canvas');
+const previewImg = document.getElementById('cam-preview-img');
+const camErr     = document.getElementById('cam-err');
+
+function showCamErr(msg){camErr.textContent=msg;camErr.style.display='block';setTimeout(()=>camErr.style.display='none',5000);}
+
+async function startCamera(){
+  camErr.style.display='none';
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode,width:{ideal:1280},height:{ideal:720}},
+      audio:false
+    });
+    video.srcObject=stream;
+    document.getElementById('cam-idle').style.display='none';
+    document.getElementById('cam-live').style.display='block';
+    document.getElementById('cam-preview').style.display='none';
+  }catch(err){
+    if(err.name==='NotAllowedError'){
+      showCamErr('Camera access denied. Please allow camera permission and try again.');
+    }else{
+      showCamErr('Camera not available. Please ensure your device has a working camera.');
+    }
+  }
+}
+
+async function flipCamera(){
+  facingMode=facingMode==='environment'?'user':'environment';
+  if(stream){stream.getTracks().forEach(t=>t.stop());}
+  await startCamera();
+}
+
+function stopCamera(){
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  document.getElementById('cam-live').style.display='none';
+  document.getElementById('cam-idle').style.display='block';
+}
+
+function capturePhoto(){
+  canvas.width=video.videoWidth||640;
+  canvas.height=video.videoHeight||480;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+  // ── SECURITY VALIDATION ──────────────────────────────────────────────────
+  const valid=validateCapturedFrame(ctx,canvas.width,canvas.height);
+  if(!valid.ok){
+    showCamErr(valid.msg);
+    return;
+  }
+
+  // Convert to blob
+  canvas.toBlob(blob=>{
+    if(!blob){showCamErr('Failed to process photo. Please try again.');return;}
+    capturedBlob=blob;
+    const url=URL.createObjectURL(blob);
+    previewImg.src=url;
+
+    // Store as base64 in hidden input for form submission
+    const reader=new FileReader();
+    reader.onload=()=>{document.getElementById('image_b64').value=reader.result;};
+    reader.readAsDataURL(blob);
+
+    // Also set the hidden file input via DataTransfer for server upload
+    try{
+      const dt=new DataTransfer();
+      const file=new File([blob],'rescue_photo.jpg',{type:'image/jpeg'});
+      dt.items.add(file);
+      document.getElementById('ii').files=dt.files;
+    }catch(e){}
+
+    // Stop camera and show preview
+    if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+    document.getElementById('cam-live').style.display='none';
+    document.getElementById('cam-preview').style.display='block';
+    document.getElementById('cam-ok-label').style.display='flex';
+  },'image/jpeg',0.88);
+}
+
+function validateCapturedFrame(ctx,w,h){
+  // Sample a grid of pixels across the image
+  const data=ctx.getImageData(0,0,w,h).data;
+  const total=w*h;
+  const step=Math.max(1,Math.floor(total/2000)); // sample ~2000 pixels
+  let r=0,g=0,b=0,count=0;
+  let darkPx=0,brightPx=0,uniqueColors=new Set();
+
+  for(let i=0;i<data.length;i+=4*step){
+    const pr=data[i],pg=data[i+1],pb=data[i+2];
+    r+=pr;g+=pg;b+=pb;count++;
+    const lum=0.299*pr+0.587*pg+0.114*pb;
+    if(lum<20)darkPx++;
+    if(lum>235)brightPx++;
+    // Bucket colors to check variety
+    uniqueColors.add((Math.round(pr/32)<<10)|(Math.round(pg/32)<<5)|Math.round(pb/32));
+  }
+
+  const darkFrac=darkPx/count;
+  const brightFrac=brightPx/count;
+  const colorVariety=uniqueColors.size;
+
+  // Reject nearly all-black (lens cap / camera blocked)
+  if(darkFrac>0.88){
+    return{ok:false,msg:'Photo appears to be completely dark. Please ensure your camera lens is unobstructed and you are photographing the animal in adequate light.'};
+  }
+  // Reject nearly all-white (overexposed / blank)
+  if(brightFrac>0.88){
+    return{ok:false,msg:'Photo appears overexposed or blank. Please aim your camera at the animal and try again.'};
+  }
+  // Reject very low colour variety (solid colour, test pattern, screenshot of text)
+  if(colorVariety<18){
+    return{ok:false,msg:'Photo does not appear to contain an animal scene. Please capture a clear photo of the injured animal at the rescue site.'};
+  }
+  // Reject extremely small frames (camera not ready yet)
+  if(w<80||h<60){
+    return{ok:false,msg:'Image resolution too low. Please try again.'};
+  }
+  return{ok:true};
+}
+
+function retakePhoto(){
+  capturedBlob=null;
+  document.getElementById('image_b64').value='';
+  document.getElementById('ii').value='';
+  document.getElementById('cam-preview').style.display='none';
+  startCamera();
+}
+
+function photoReady(){
+  return !!(capturedBlob||document.getElementById('image_b64').value);
+}
+
+// ── FORM SUBMISSION ──────────────────────────────────────────────────────────
+// Rate limiting: max 3 submissions per session
+let sessionSubmits=parseInt(sessionStorage.getItem('wc_submits')||'0');
+
+document.getElementById('rf').addEventListener('submit',async function(e){
+  e.preventDefault();
+
+  // Validate species
+  if(!validateSpecies()){
+    spSearch.focus();
+    spSearch.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // Require photo
+  if(!photoReady()){
+    showCamErr('A live photo of the animal is required to submit a rescue report. Please open your camera and take a photo at the scene.');
+    document.getElementById('cam-start-btn').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // Rate limit
+  if(sessionSubmits>=3){
+    alert('You have submitted 3 reports this session. If this is an ongoing emergency please call +91 9922 408 432 directly.');
+    return;
+  }
+
+  const btn=document.getElementById('sb');
+  btn.disabled=true;btn.textContent='Submitting...';
+
+  try{
+    const fd=new FormData(this);
+    // Replace any empty species field with hidden input value
+    if(!fd.get('species')||fd.get('species')===''){fd.set('species',document.getElementById('sp').value);}
+
+    const res=await fetch('/api/rescue/submit',{method:'POST',body:fd});
+    const data=await res.json();
+    if(!res.ok)throw new Error(data.error||'Failed');
+
+    sessionSubmits++;
+    sessionStorage.setItem('wc_submits',sessionSubmits);
+
+    document.getElementById('cnum').textContent='Case #'+String(data.case_id).padStart(5,'0');
+    document.getElementById('rb').style.display='block';
+    document.getElementById('rf').style.display='none';
+    document.getElementById('rb').scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){
+    alert('Error: '+err.message+'\nPlease call +91 9922 408 432 directly.');
+    btn.disabled=false;btn.textContent='▲ Submit Emergency Report';
+  }
+});
+
+function resetF(){
+  document.getElementById('rf').reset();
+  document.getElementById('rf').style.display='block';
+  document.getElementById('rb').style.display='none';
+  document.getElementById('sb').disabled=false;
+  document.getElementById('sb').textContent='▲ Submit Emergency Report';
+  document.getElementById('image_b64').value='';
+  document.getElementById('ii').value='';
+  capturedBlob=null;
+  // Reset species
+  spInput.value='';spSearch.value='';spOpts.forEach(o=>o.classList.remove('active'));
+  // Reset camera
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  document.getElementById('cam-preview').style.display='none';
+  document.getElementById('cam-live').style.display='none';
+  document.getElementById('cam-idle').style.display='block';
+  if(pin){map.removeLayer(pin);pin=null;}
+}
+</script>
+{% endblock %}

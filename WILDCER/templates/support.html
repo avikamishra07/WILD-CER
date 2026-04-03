@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Support Wild-CER — Conservation Partner{% endblock %}
+{% block extra_head %}
+<style>
+.sup-ways{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);margin:3.5rem 0;}
+.sw{background:var(--surface);padding:2.5rem 2rem;position:relative;overflow:hidden;transition:background .2s;}
+.sw:hover{background:var(--surface2);}
+.sw-icon{font-size:2rem;margin-bottom:1.1rem;display:block;}
+.sw-title{font-family:var(--serif);font-size:1.3rem;font-weight:400;color:var(--mist);margin-bottom:.6rem;}
+.sw-desc{font-size:.82rem;color:var(--text-dim);line-height:1.75;}
+.sw-num{font-family:var(--serif);font-size:4.5rem;font-weight:300;color:rgba(201,168,76,.07);position:absolute;top:.5rem;right:1rem;line-height:1;}
+.vol-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:2.5rem 0;}
+.vg{background:var(--surface);padding:2rem;}
+.vg-title{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.75rem;}
+.vg-list{list-style:none;padding:0;}
+.vg-list li{font-size:.83rem;color:var(--text-dim);padding:.4rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem;line-height:1.55;}
+.vg-list li:last-child{border:none;}
+.vg-list li::before{content:'→';color:var(--accent-light);font-family:var(--mono);font-size:.7rem;flex-shrink:0;}
+@media(max-width:800px){.sup-ways{grid-template-columns:1fr;}.vol-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="inner-hero">
+  <div class="ih-inner">
+    <div class="ih-breadcrumb"><a href="{{ url_for('home') }}">Wild-CER</a><span>/</span>Support</div>
+    <div class="ih-label">Get Involved</div>
+    <h1 class="ih-h1">Support Wild-CER's<br><em style="font-style:italic;color:var(--gold);">Conservation Work</em></h1>
+    <p style="font-size:.9rem;color:var(--text-dim);line-height:1.85;max-width:520px;margin-top:1rem;">There are many ways to support Wild-CER beyond financial donations. Join our community of conservationists, share our mission, and help protect India's endangered wildlife.</p>
+  </div>
+</div>
+
+<section style="padding:5rem 0;background:var(--void);">
+  <div class="wrap">
+    <div class="label reveal">Ways to Help</div>
+    <h2 class="display-title reveal" data-delay="60">How You Can <em>Make a Difference</em></h2>
+    <div class="sup-ways">
+      <div class="sw reveal">
+        <div class="sw-num">01</div>
+        <span class="sw-icon">💰</span>
+        <div class="sw-title">Donate Funds</div>
+        <div class="sw-desc">Every rupee goes directly to wildlife rescue operations, veterinary care, and conservation education. Donations are 80G tax-exempt.</div>
+        <br>
+        <a href="{{ url_for('donate') }}" class="btn-ember" style="margin-top:.5rem;">Donate Now →</a>
+      </div>
+      <div class="sw reveal" data-delay="60">
+        <div class="sw-num">02</div>
+        <span class="sw-icon">🤝</span>
+        <div class="sw-title">Volunteer</div>
+        <div class="sw-desc">Join our field teams, assist in rescue operations, support documentation, or contribute professional skills in veterinary science, research, or communications.</div>
+        <br>
+        <a href="{{ url_for('opportunities') }}" class="btn-ghost" style="margin-top:.5rem;">See Opportunities →</a>
+      </div>
+      <div class="sw reveal" data-delay="120">
+        <div class="sw-num">03</div>
+        <span class="sw-icon">🏢</span>
+        <div class="sw-title">CSR Partnership</div>
+        <div class="sw-desc">Partner with Wild-CER through your company's CSR program. We provide customised conservation projects aligned with your sustainability goals.</div>
+        <br>
+        <a href="{{ url_for('csr') }}" class="btn-ghost" style="margin-top:.5rem;">Partner with Us →</a>
+      </div>
+      <div class="sw reveal" data-delay="60">
+        <div class="sw-num">04</div>
+        <span class="sw-icon">📢</span>
+        <div class="sw-title">Spread Awareness</div>
+        <div class="sw-desc">Share our rescue reports, educational content, and wildlife stories on social media. Follow us on Instagram, Facebook, YouTube and Twitter to amplify our reach.</div>
+        <br>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.75rem;">
+          <a href="https://www.instagram.com/wild_cer/" target="_blank" class="btn-ghost" style="padding:.4rem .8rem;font-size:.62rem;">Instagram</a>
+          <a href="https://www.facebook.com/Society-for-Wildlife-Conservation-Education-and-Research-174910669208097/" target="_blank" class="btn-ghost" style="padding:.4rem .8rem;font-size:.62rem;">Facebook</a>
+          <a href="https://www.youtube.com/channel/UCp_-RqQm1AERRM3ZDRrmpqQ" target="_blank" class="btn-ghost" style="padding:.4rem .8rem;font-size:.62rem;">YouTube</a>
+        </div>
+      </div>
+      <div class="sw reveal" data-delay="120">
+        <div class="sw-num">05</div>
+        <span class="sw-icon">📸</span>
+        <div class="sw-title">Report a Rescue</div>
+        <div class="sw-desc">Spotted an injured wild animal? Report it to our team immediately. Your report could save a life. Every sighting matters — no matter how small.</div>
+        <br>
+        <a href="{{ url_for('wildlife_rescue') }}" class="btn-ember" style="margin-top:.5rem;">Report Emergency →</a>
+      </div>
+      <div class="sw reveal" data-delay="180">
+        <div class="sw-num">06</div>
+        <span class="sw-icon">🎓</span>
+        <div class="sw-title">Become a Member</div>
+        <div class="sw-desc">Join Wild-CER as an associate member. Receive newsletters, field reports, and invitations to conservation events. Help build a community of wildlife champions.</div>
+        <br>
+        <a href="https://forms.gle/UDVMFipP1pD2PXbG6" target="_blank" class="btn-ghost" style="margin-top:.5rem;">Join as Member →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding:4rem 0 6rem;background:var(--surface);border-top:1px solid var(--border);">
+  <div class="wrap">
+    <div class="label reveal">Volunteer Roles</div>
+    <h2 class="display-title reveal" data-delay="60">Skills We <em>Need</em></h2>
+    <div class="vol-grid">
+      <div class="vg reveal">
+        <div class="vg-title">Field & Science</div>
+        <ul class="vg-list">
+          <li>Wildlife Veterinarians & Vets in Training</li>
+          <li>Field Biologists & Ecologists</li>
+          <li>Wildlife Photographers</li>
+          <li>GIS & Remote Sensing Specialists</li>
+          <li>Laboratory Technicians</li>
+        </ul>
+      </div>
+      <div class="vg reveal" data-delay="80">
+        <div class="vg-title">Communications & Outreach</div>
+        <ul class="vg-list">
+          <li>Social Media & Digital Marketing</li>
+          <li>Graphic Designers & Video Editors</li>
+          <li>Science Writers & Journalists</li>
+          <li>Event Coordinators</li>
+          <li>Translators (Marathi, Hindi, English)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1rem;" class="reveal">
+      <a href="{{ url_for('opportunities') }}" class="btn-primary">View All Openings</a>
+    </div>
+  </div>
+</section>
+
+<section style="padding:5rem 0;background:var(--void);text-align:center;">
+  <div class="wrap">
+    <div class="label reveal" style="justify-content:center;">Get in Touch</div>
+    <h2 class="display-title reveal" data-delay="60" style="margin-bottom:1rem;">Ready to <em>Get Started?</em></h2>
+    <p class="reveal" data-delay="100" style="font-size:.88rem;color:var(--text-dim);max-width:400px;margin:0 auto 2rem;line-height:1.8;">Contact us to discuss how you can contribute to Wild-CER's conservation mission.</p>
+    <div style="display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap;" class="reveal" data-delay="140">
+      <a href="mailto:info@wildcer.org" class="btn-primary">✉ info@wildcer.org</a>
+      <a href="tel:+919922408432" class="btn-ghost">📞 +91 9922 408 432</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

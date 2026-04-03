@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Staff Login — Wild-CER{% endblock %}
+{% block extra_head %}
+<style>
+.lw{min-height:calc(100vh - 64px);background:var(--void);display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;}
+.lw::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 30% 50%,rgba(58,125,92,.06) 0%,transparent 70%);}
+.lb{background:var(--surface);border:1px solid var(--border);padding:3rem;width:100%;max-width:400px;position:relative;}
+.lb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent);}
+.ll{margin-bottom:2.25rem;}
+.ll img{height:38px;filter:brightness(0) invert(1);opacity:.8;margin-bottom:1.25rem;display:block;}
+.ll h1{font-family:var(--serif);font-size:1.75rem;font-weight:300;color:var(--mist);}
+.ll p{font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-top:.3rem;}
+.lf{margin-bottom:1px;}
+.llb{display:block;font-family:var(--mono);font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);padding:.7rem 1rem .3rem;background:var(--surface2);}
+.li{width:100%;background:var(--surface2);border:none;border-bottom:1px solid var(--border2);padding:.75rem 1rem;font-family:var(--sans);font-size:.9rem;color:var(--mist);outline:none;transition:border-color .2s;-webkit-appearance:none;border-radius:0;}
+.li:focus{border-bottom-color:var(--gold);}
+.li::placeholder{color:rgba(232,226,214,.18);}
+.blg{width:100%;background:var(--accent);color:#fff;border:none;padding:.85rem 1.5rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:1px;}
+.blg:hover{background:var(--accent-light);}
+.dn{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.15);padding:.7rem 1rem;font-family:var(--mono);font-size:.6rem;color:rgba(201,168,76,.65);line-height:1.65;margin-bottom:1.5rem;}
+.bk{display:block;text-align:center;font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;margin-top:1.5rem;transition:color .2s;}
+.bk:hover{color:var(--gold);}
+</style>
+{% endblock %}
+{% block content %}
+<div class="lw"><div class="lb">
+  <div class="ll">
+    <img src="https://wildcer.org/wp-content/uploads/2024/11/Wild-CER-HD-color-logo-scaled.jpg" alt="Wild-CER"/>
+    <h1>Staff Portal</h1>
+    <p>Rescue Management · Authorised Only</p>
+  </div>
+  <div class="dn">Demo — admin / wildcer2024</div>
+  <form method="POST" action="{{ url_for('login') }}">
+    <div class="lf"><label class="llb" for="username">Username</label><input class="li" type="text" id="username" name="username" placeholder="username" autocomplete="username" required/></div>
+    <div class="lf" style="margin-bottom:1.5rem;"><label class="llb" for="password">Password</label><input class="li" type="password" id="password" name="password" placeholder="password" autocomplete="current-password" required/></div>
+    <button type="submit" class="blg">Sign In &#8594;</button>
+  </form>
+  <a href="{{ url_for('home') }}" class="bk">&#8592; Back to Wild-CER</a>
+</div></div>
+{% endblock %}

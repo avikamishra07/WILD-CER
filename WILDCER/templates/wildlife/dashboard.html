@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+{% block title %}Rescue Dashboard — Wild-CER{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+.dw{background:var(--void);min-height:calc(100vh - 64px);padding-bottom:4rem;}
+.dtb{background:var(--surface);border-bottom:1px solid var(--border);padding:.9rem 0;}
+.dti{max-width:1200px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.dh1{font-family:var(--serif);font-size:1.35rem;font-weight:300;color:var(--mist);}
+.dh1 span{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-left:.6rem;}
+.otag{font-family:var(--mono);font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-light);border:1px solid rgba(82,183,136,.2);padding:.3rem .75rem;}
+.dbtn{padding:.42rem .85rem;font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;}
+.dbp{background:var(--accent);color:#fff;}.dbp:hover{background:var(--accent-light);}
+.dbg{background:transparent;color:var(--text-dim);border:1px solid var(--border2);}.dbg:hover{color:var(--mist);}
+.di{max-width:1200px;margin:0 auto;padding:2rem 2.5rem;}
+
+/* ── 6 STAT CARDS ── */
+.sr{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);margin-bottom:1px;}
+.sc{background:var(--surface);padding:1.4rem 1.1rem;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;}
+.sc-t::before{background:#60a5fa;}.sc-h::before{background:var(--ember);}.sc-m::before{background:var(--gold);}.sc-l::before{background:var(--accent-light);}
+.sc-came::before{background:#a78bfa;}.sc-att::before{background:#34d399;}
+.slb{font-family:var(--mono);font-size:.55rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.4rem;line-height:1.3;}
+.sv{font-family:var(--serif);font-size:2.3rem;font-weight:300;line-height:1;}
+.sc-t .sv{color:#60a5fa;}.sc-h .sv{color:var(--ember);}.sc-m .sv{color:var(--gold);}.sc-l .sv{color:var(--accent-light);}
+.sc-came .sv{color:#a78bfa;}.sc-att .sv{color:#34d399;}
+.sc-sub{font-family:var(--mono);font-size:.52rem;color:var(--text-dim);margin-top:.25rem;letter-spacing:.08em;opacity:.7;}
+
+/* ── CHARTS / MAP ── */
+.cr{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:1px;}
+.cc{background:var(--surface);padding:1.5rem;}
+.ch{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1rem;}
+.cw{position:relative;height:185px;}
+.mc{background:var(--surface);border-bottom:1px solid var(--border);padding:1.5rem;margin-bottom:1px;}
+#dm{height:260px;display:block;}
+.ml{display:flex;gap:1.25rem;margin-top:.6rem;flex-wrap:wrap;}
+.mi{display:flex;align-items:center;gap:.35rem;font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);}
+.md{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── TABLE SECTION ── */
+.casc{background:var(--surface);overflow:hidden;margin-bottom:1px;}
+.cast{padding:.9rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem;}
+.cast-title{display:flex;align-items:center;gap:.75rem;}
+.cast-badge{font-family:var(--mono);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;padding:.2rem .55rem;border:1px solid;}
+.badge-pending{color:var(--ember);border-color:rgba(212,90,42,.3);}
+.badge-attended{color:#34d399;border-color:rgba(52,211,153,.3);}
+.sbx{background:var(--surface2);border:1px solid var(--border2);padding:.35rem .7rem;color:var(--mist);font-family:var(--mono);font-size:.7rem;width:200px;outline:none;-webkit-appearance:none;border-radius:0;cursor:text;}
+.sbx:focus{border-color:rgba(201,168,76,.4);}
+
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--void);padding:.6rem 1rem;font-family:var(--mono);font-size:.56rem;font-weight:400;color:var(--text-dim);letter-spacing:.11em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+thead th:hover{color:var(--mist);}
+thead th.no-sort{cursor:default;} thead th.no-sort:hover{color:var(--text-dim);}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.03);transition:background .1s;}
+tbody tr:hover{background:rgba(255,255,255,.02);}
+tbody td{padding:.75rem 1rem;font-size:.82rem;vertical-align:middle;color:var(--text-dim);}
+
+/* Photo thumbnail */
+.thumb{width:60px;height:46px;object-fit:cover;display:block;border:1px solid var(--border2);cursor:pointer;transition:opacity .2s;}
+.thumb:hover{opacity:.75;}
+.no-photo{width:60px;height:46px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:rgba(232,226,214,.2);letter-spacing:.08em;}
+
+/* Lightbox */
+.lb{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.9);align-items:center;justify-content:center;}
+.lb.open{display:flex;}
+.lb-img{max-width:92vw;max-height:88vh;object-fit:contain;display:block;border:1px solid var(--border2);}
+.lb-close{position:absolute;top:1.25rem;right:1.5rem;color:#fff;font-size:1.6rem;background:none;border:none;cursor:pointer;opacity:.55;line-height:1;transition:opacity .2s;}
+.lb-close:hover{opacity:1;}
+
+.tid{font-family:var(--mono);font-size:.62rem;color:rgba(232,226,214,.3);letter-spacing:.1em;}
+.tsp{color:var(--mist);font-weight:600;font-size:.84rem;}
+.tdesc{max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chip{font-family:var(--mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;padding:.16rem .55rem;border:1px solid;}
+.cH{color:var(--ember);border-color:rgba(212,90,42,.3);}.cM{color:var(--gold);border-color:rgba(201,168,76,.3);}.cL{color:var(--accent-light);border-color:rgba(82,183,136,.3);}
+.sv2{font-family:var(--serif);font-size:.95rem;font-weight:300;}
+.svH{color:var(--ember);}.svM{color:var(--gold);}.svL{color:var(--accent-light);}
+.mb{width:38px;height:2px;background:var(--border);margin-top:3px;}
+.mf{height:100%;transition:width .3s;}
+.ts{font-family:var(--mono);font-size:.58rem;color:rgba(232,226,214,.2);}
+
+/* injured since badge */
+.inj-since{font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;white-space:nowrap;padding:.15rem .45rem;background:rgba(212,90,42,.1);border:1px solid rgba(212,90,42,.2);color:rgba(212,90,42,.8);}
+.inj-since.low{background:rgba(82,183,136,.08);border-color:rgba(82,183,136,.2);color:rgba(82,183,136,.8);}
+.inj-since.med{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.2);color:rgba(201,168,76,.8);}
+
+/* Attended toggle */
+.att-chk{display:flex;align-items:center;gap:.45rem;}
+.att-chk input[type=checkbox]{width:15px;height:15px;accent-color:#34d399;cursor:pointer;flex-shrink:0;}
+.att-lbl{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);}
+.att-lbl.done{color:#34d399;}
+
+.empty{text-align:center;padding:3rem;color:var(--text-dim);}
+.empty h4{font-family:var(--serif);font-size:1rem;color:rgba(232,226,214,.3);font-weight:300;margin-top:.5rem;}
+.leaflet-tile{filter:brightness(.55) saturate(.5);}
+
+@media(max-width:1024px){.sr{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:768px){.cr{grid-template-columns:1fr;}.sr{grid-template-columns:repeat(2,1fr);}}
+</style>
+{% endblock %}
+{% block content %}
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="closeLb()">
+  <button class="lb-close" onclick="event.stopPropagation();closeLb()">✕</button>
+  <img class="lb-img" id="lb-img" src="" alt="Rescue photo"/>
+</div>
+
+<div class="dw">
+  <div class="dtb"><div class="dti">
+    <h1 class="dh1">Rescue Command Centre <span>NGO Officials Only</span></h1>
+    <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+      <div class="otag">{{ user.name }}</div>
+      <button class="dbtn dbg" onclick="loadData()">&#8635; Refresh</button>
+      <button class="dbtn dbg" onclick="seedDemo()">Demo Data</button>
+      <a href="{{ url_for('wildlife_rescue') }}" style="text-decoration:none;"><button class="dbtn dbp">+ New Case</button></a>
+      <a href="{{ url_for('logout') }}" style="font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,226,214,.18);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='var(--text-dim)'" onmouseout="this.style.color='rgba(232,226,214,.18)'">Logout</a>
+    </div>
+  </div></div>
+
+  <div class="di">
+    <!-- ── STAT CARDS ── -->
+    <div class="sr">
+      <div class="sc sc-t"><div class="slb">Total Reports</div><div class="sv" id="st">{{ counts.total }}</div></div>
+      <div class="sc sc-h"><div class="slb">High Priority</div><div class="sv" id="sh">0</div></div>
+      <div class="sc sc-m"><div class="slb">Medium</div><div class="sv" id="sm">0</div></div>
+      <div class="sc sc-l"><div class="slb">Low Priority</div><div class="sv" id="sl">0</div></div>
+      <div class="sc sc-came"><div class="slb">Rescues Received</div><div class="sv" id="sc-came">{{ counts.total }}</div><div class="sc-sub">Total came in</div></div>
+      <div class="sc sc-att"><div class="slb">Attended ✓</div><div class="sv" id="sc-att">{{ counts.attended }}</div><div class="sc-sub">Rescue completed</div></div>
+    </div>
+
+    <!-- ── CHARTS ── -->
+    <div class="cr">
+      <div class="cc"><div class="ch">Priority Distribution</div><div class="cw"><canvas id="cp"></canvas></div></div>
+      <div class="cc"><div class="ch">Cases by Species</div><div class="cw"><canvas id="cs"></canvas></div></div>
+    </div>
+
+    <!-- ── MAP ── -->
+    <div class="mc">
+      <div class="ch">Rescue Locations</div>
+      <div id="dm"></div>
+      <div class="ml">
+        <div class="mi"><div class="md" style="background:var(--ember);"></div>High</div>
+        <div class="mi"><div class="md" style="background:var(--gold);"></div>Medium</div>
+        <div class="mi"><div class="md" style="background:var(--accent-light);"></div>Low</div>
+        <div style="margin-left:auto;" id="mc"><span class="ts">—</span></div>
+      </div>
+    </div>
+
+    <!-- ── PENDING TABLE ── -->
+    <div class="casc" id="pending-section">
+      <div class="cast">
+        <div class="cast-title">
+          <div class="ch" style="margin:0;">Pending Rescues</div>
+          <span class="cast-badge badge-pending" id="pending-count">0</span>
+        </div>
+        <input class="sbx" type="text" id="sq-pending" placeholder="Search pending..." oninput="filterPending()"/>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th onclick="srt('id','pending')">ID</th>
+            <th class="no-sort">Photo</th>
+            <th onclick="srt('species','pending')">Species</th>
+            <th>Location</th>
+            <th>Condition</th>
+            <th>Injured Since</th>
+            <th onclick="srt('priority_score','pending')">Score</th>
+            <th>Level</th>
+            <th onclick="srt('submitted_at','pending')">Reported</th>
+            <th class="no-sort">Attended ✓</th>
+          </tr></thead>
+          <tbody id="tb-pending"><tr><td colspan="10"><div class="empty"><h4>Loading...</h4></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ATTENDED TABLE ── -->
+    <div class="casc" id="attended-section">
+      <div class="cast">
+        <div class="cast-title">
+          <div class="ch" style="margin:0;">Attended Rescues</div>
+          <span class="cast-badge badge-attended" id="attended-count">0</span>
+        </div>
+        <input class="sbx" type="text" id="sq-attended" placeholder="Search attended..." oninput="filterAttended()"/>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th onclick="srt('id','attended')">ID</th>
+            <th class="no-sort">Photo</th>
+            <th onclick="srt('species','attended')">Species</th>
+            <th>Location</th>
+            <th>Condition</th>
+            <th>Injured Since</th>
+            <th onclick="srt('priority_score','attended')">Score</th>
+            <th>Level</th>
+            <th onclick="srt('submitted_at','attended')">Reported</th>
+            <th class="no-sort">Undo ✕</th>
+          </tr></thead>
+          <tbody id="tb-attended"><tr><td colspan="10"><div class="empty"><h4>No attended rescues yet.</h4></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /di -->
+</div><!-- /dw -->
+{% endblock %}
+{% block extra_scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
+let cases = [], sortKey = {pending:'priority_score', attended:'priority_score'}, sortDir = {pending:-1, attended:-1};
+let pc = null, sc2 = null, dm = null;
+
+// ── MAP ───────────────────────────────────────────────────────────────────────
+function initMap(){
+  dm = L.map('dm').setView([21.5, 79.5], 5);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {attribution:'CartoDB'}).addTo(dm);
+}
+
+// ── LOAD ──────────────────────────────────────────────────────────────────────
+async function loadData(){
+  try{
+    const [r1, r2, r3] = await Promise.all([
+      fetch('/api/rescue/cases'),
+      fetch('/api/rescue/charts'),
+      fetch('/api/rescue/counts')
+    ]);
+    if(!r1.ok || !r2.ok) return;
+    cases = await r1.json();
+    const ch  = await r2.json();
+    const cnt = await r3.json();
+
+    // Stat cards
+    document.getElementById('st').textContent      = cases.length;
+    document.getElementById('sh').textContent      = cases.filter(x => x.priority_level==='HIGH').length;
+    document.getElementById('sm').textContent      = cases.filter(x => x.priority_level==='MEDIUM').length;
+    document.getElementById('sl').textContent      = cases.filter(x => x.priority_level==='LOW').length;
+    document.getElementById('sc-came').textContent = cnt.total;
+    document.getElementById('sc-att').textContent  = cnt.attended;
+
+    filterPending();
+    filterAttended();
+    updateBadges();
+    renderCharts(ch);
+    renderMarkers(ch.map_markers);
+  } catch(ex){ console.error(ex); }
+}
+
+// ── SPLIT + FILTER ────────────────────────────────────────────────────────────
+function pending()  { return cases.filter(c => !c.attended); }
+function attended() { return cases.filter(c =>  c.attended); }
+
+function filterPending(){
+  const q = document.getElementById('sq-pending').value.toLowerCase();
+  const data = pending().filter(c => matchesQuery(c, q));
+  renderTable(data, 'tb-pending', false);
+}
+function filterAttended(){
+  const q = document.getElementById('sq-attended').value.toLowerCase();
+  const data = attended().filter(c => matchesQuery(c, q));
+  renderTable(data, 'tb-attended', true);
+}
+function matchesQuery(c, q){
+  if(!q) return true;
+  return (c.species||'').toLowerCase().includes(q)
+      || (c.location||'').toLowerCase().includes(q)
+      || (c.description||'').toLowerCase().includes(q);
+}
+function updateBadges(){
+  document.getElementById('pending-count').textContent  = pending().length;
+  document.getElementById('attended-count').textContent = attended().length;
+}
+
+// ── SORT ──────────────────────────────────────────────────────────────────────
+function srt(k, tbl){
+  if(sortKey[tbl] === k) sortDir[tbl] *= -1; else { sortKey[tbl] = k; sortDir[tbl] = -1; }
+  cases.sort((a,b) => {
+    const va = a[k] ?? '', vb = b[k] ?? '';
+    return typeof va === 'number' ? (va - vb)*sortDir[tbl] : va.toString().localeCompare(vb.toString())*sortDir[tbl];
+  });
+  if(tbl === 'pending') filterPending(); else filterAttended();
+}
+
+// ── INJURED SINCE LABEL ───────────────────────────────────────────────────────
+const INJ_LABELS = {
+  just_now:'Just found',lt_1h:'< 1 hour',
+  '1_3h':'1–3 hrs','3_6h':'3–6 hrs',
+  '6_12h':'6–12 hrs',gt_12h:'12+ hrs',
+  unknown:'Unknown'
+};
+const INJ_CLASS = {
+  just_now:'low',lt_1h:'low','1_3h':'med','3_6h':'med','6_12h':'','gt_12h':'','unknown':'med'
+};
+function injBadge(val){
+  const label = INJ_LABELS[val] || val || '—';
+  const cls   = INJ_CLASS[val] || '';
+  return `<span class="inj-since ${cls}">${label}</span>`;
+}
+
+// ── PHOTO THUMBNAIL + LIGHTBOX ────────────────────────────────────────────────
+function photoCell(c){
+  if(c.image_path){
+    const url = '/uploads/' + c.image_path;
+    return `<img class="thumb" src="${url}" alt="Rescue photo" title="Click to enlarge" onclick="openLb('${url}')"/>`;
+  }
+  return `<div class="no-photo">No photo</div>`;
+}
+function openLb(url){
+  document.getElementById('lb-img').src = url;
+  document.getElementById('lb').classList.add('open');
+}
+function closeLb(){
+  document.getElementById('lb').classList.remove('open');
+  document.getElementById('lb-img').src = '';
+}
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
+
+// ── RENDER TABLE ──────────────────────────────────────────────────────────────
+function renderTable(data, tbId, isAttended){
+  const tb  = document.getElementById(tbId);
+  const cols = 10;
+  if(!data.length){
+    const msg = isAttended ? 'No attended rescues yet.' : 'No pending cases — all rescued! 🎉';
+    tb.innerHTML = `<tr><td colspan="${cols}"><div class="empty"><h4>${msg}</h4></div></td></tr>`;
+    return;
+  }
+  const col = {HIGH:'var(--ember)',MEDIUM:'var(--gold)',LOW:'var(--accent-light)'};
+  tb.innerHTML = data.map(c => {
+    const photo   = photoCell(c);
+    const inj     = injBadge(c.injured_since);
+    const score   = c.priority_score.toFixed(1);
+    const bar     = `<div class="mb"><div class="mf" style="width:${c.priority_score}%;background:${col[c.priority_level]};"></div></div>`;
+    const chip    = `<span class="chip c${c.priority_level.charAt(0)}">${c.priority_level}</span>`;
+    const dateStr = (c.submitted_at||'').replace('T',' ').split('.')[0];
+
+    let actionCell;
+    if(isAttended){
+      // Undo button in attended table
+      actionCell = `<div class="att-chk"><input type="checkbox" checked onchange="toggleAttend(${c.id},this)"/><span class="att-lbl done">Done</span></div>`;
+    } else {
+      // Attend checkbox in pending table
+      actionCell = `<div class="att-chk"><input type="checkbox" onchange="toggleAttend(${c.id},this)"/><span class="att-lbl">Pending</span></div>`;
+    }
+
+    return `<tr>
+      <td><span class="tid">#${String(c.id).padStart(5,'0')}</span></td>
+      <td>${photo}</td>
+      <td><span class="tsp">${e(c.species)}</span></td>
+      <td><span style="font-size:.78rem;">${e(c.location)}</span></td>
+      <td><span class="tdesc" title="${e(c.description)}">${e(c.description)}</span></td>
+      <td>${inj}</td>
+      <td><span class="sv2 sv${c.priority_level.charAt(0)}">${score}</span>${bar}</td>
+      <td>${chip}</td>
+      <td><span class="ts">${dateStr}</span></td>
+      <td>${actionCell}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── ATTEND TOGGLE ─────────────────────────────────────────────────────────────
+async function toggleAttend(caseId, chk){
+  const attended = chk.checked;
+  try{
+    const r = await fetch('/api/rescue/attend', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({case_id: caseId, attended: attended})
+    });
+    const d = await r.json();
+    if(d.success){
+      const c = cases.find(x => x.id === caseId);
+      if(c) c.attended = attended ? 1 : 0;
+      document.getElementById('sc-came').textContent = d.counts.total;
+      document.getElementById('sc-att').textContent  = d.counts.attended;
+      updateBadges();
+      filterPending();
+      filterAttended();
+    }
+  } catch(ex){
+    chk.checked = !attended;
+    console.error(ex);
+  }
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+function renderCharts(d){
+  Chart.defaults.color = 'rgba(232,226,214,.35)';
+  Chart.defaults.borderColor = 'rgba(255,255,255,.05)';
+  if(pc) pc.destroy();
+  pc = new Chart(document.getElementById('cp'),{type:'doughnut',data:{labels:d.priority_distribution.labels,datasets:[{data:d.priority_distribution.data,backgroundColor:['rgba(212,90,42,.75)','rgba(201,168,76,.75)','rgba(82,183,136,.75)'],borderColor:['var(--ember)','var(--gold)','var(--accent-light)'],borderWidth:1.5,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:10,family:'Syne Mono'}}}}}});
+  if(sc2) sc2.destroy();
+  sc2 = new Chart(document.getElementById('cs'),{type:'bar',data:{labels:d.species_distribution.labels,datasets:[{label:'Cases',data:d.species_distribution.data,backgroundColor:'rgba(58,125,92,.6)',borderColor:'var(--accent)',borderWidth:1}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,.03)'},ticks:{stepSize:1,font:{family:'Syne Mono',size:10}}},y:{grid:{display:false},ticks:{font:{family:'Syne Mono',size:10}}}}}});
+}
+
+// ── MAP MARKERS ───────────────────────────────────────────────────────────────
+function renderMarkers(markers){
+  if(!dm) return;
+  dm.eachLayer(l => { if(l instanceof L.CircleMarker) dm.removeLayer(l); });
+  const col = {HIGH:'#d45a2a', MEDIUM:'#c9a84c', LOW:'#52b788'};
+  markers.forEach(m => {
+    L.circleMarker([m.lat, m.lng], {radius:8, fillColor:col[m.priority_level]||'#60a5fa', color:'#fff', weight:1.5, fillOpacity:.85})
+      .addTo(dm)
+      .bindPopup(`<div style="font-family:'Syne Mono',monospace;font-size:11px;background:#0c1012;color:#e8e2d6;padding:6px 10px;border:1px solid rgba(255,255,255,.1);"><strong>${m.species}</strong><br>${m.location}</div>`, {className:'dark-popup'});
+  });
+  if(markers.length) dm.fitBounds(L.latLngBounds(markers.map(m => [m.lat, m.lng])), {padding:[30,30]});
+  document.getElementById('mc').innerHTML = `<span class="ts">${markers.length} location${markers.length!==1?'s':''}</span>`;
+}
+
+// ── SEED ──────────────────────────────────────────────────────────────────────
+async function seedDemo(){
+  if(!confirm('Load 6 sample rescue cases?')) return;
+  const r = await fetch('/api/rescue/seed', {method:'POST'});
+  const d = await r.json();
+  alert(d.seeded + ' cases loaded.');
+  loadData();
+}
+
+function e(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+initMap();
+loadData();
+setInterval(loadData, 30000);
+</script>
+{% endblock %}

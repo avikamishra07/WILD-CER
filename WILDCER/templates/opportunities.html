@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Opportunities — Wild-CER{% endblock %}
+{% block content %}
+<div class="inner-hero">
+  <div class="ih-inner">
+    <div class="ih-breadcrumb"><a href="{{ url_for('home') }}">Wild-CER</a><span>/</span>Opportunities</div>
+    <div class="ih-label">Get Involved</div>
+    <h1 class="ih-h1">Opportunities</h1>
+  </div>
+</div>
+
+<section style="padding:6rem 0;"><div class="wrap">
+  <div class="label reveal">Join Us</div>
+  <h2 class="display-title reveal" data-delay="60" style="margin-bottom:4rem;">Become Part of the <em>Mission</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);">
+<div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#129503;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Volunteer</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">Field Volunteer</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Join our rescue teams and participate in field operations. We welcome vets, biologists, educators and passionate wildlife enthusiasts.</p>
+      <a href="{{ url_for('contact') }}" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Apply via Contact</a>
+    </div><div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#127891;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Research</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">Internships</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Conduct your thesis or research project with Wild-CER in wildlife health, ecology, and conservation planning.</p>
+      <a href="{{ url_for('contact') }}" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Enquire Now</a>
+    </div><div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#128196;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Membership</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">Become a Member</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Official Wild-CER member benefits include activity discounts, field updates, and Emergency Response Team membership.</p>
+      <a href="https://forms.gle/UDVMFipP1pD2PXbG6" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Join Now</a>
+    </div><div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#128084;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Corporate</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">CSR Partnership</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Engage your team in meaningful conservation. We organise corporate volunteering days, wildlife camps and awareness sessions.</p>
+      <a href="{{ url_for('csr') }}" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Partner With Us</a>
+    </div><div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#9829;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Donate</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">Financial Support</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Your support enables equipment, rescue operations and staff training. Eligible for 80G tax exemption.</p>
+      <a href="{{ url_for('donate') }}" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Donate</a>
+    </div><div style="background:var(--surface);padding:2.25rem;transition:background .2s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='var(--surface)'">
+      <div style="font-size:2.25rem;margin-bottom:1rem;">&#9650;</div>
+      <div style="font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent-light);margin-bottom:.5rem;">Emergency</div>
+      <div style="font-family:var(--serif);font-size:1.2rem;color:var(--mist);margin-bottom:.6rem;">Report a Rescue</div>
+      <p style="font-size:.81rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.1rem;">Spotted an injured animal? Report it via our form and our veterinary team responds immediately.</p>
+      <a href="{{ url_for('wildlife_rescue') }}" class="btn-ghost" style="font-size:.65rem;padding:.5rem 1rem;">Report Now</a>
+    </div>
+  </div>
+</div></section>
+{% endblock %}

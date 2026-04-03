@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+{% block title %}Donate — Wild-CER{% endblock %}
+{% block extra_head %}
+<style>
+.don-hero{padding:5rem 0 4rem;position:relative;border-bottom:1px solid var(--border);}
+.don-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 80% 50%,rgba(201,168,76,.06) 0%,transparent 70%);}
+.don-inner{max-width:1200px;margin:0 auto;padding:0 2.5rem;position:relative;}
+.tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);margin:3rem 0;}
+.tier{background:var(--surface);padding:2rem 1.5rem;position:relative;transition:background .2s;cursor:default;}
+.tier:hover{background:var(--surface2);}
+.tier.featured{background:var(--surface2);border-top:2px solid var(--gold);}
+.tier-badge{font-family:var(--mono);font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;}
+.tier-amount{font-family:var(--serif);font-size:2.8rem;font-weight:300;color:var(--mist);line-height:1;}
+.tier-currency{font-family:var(--mono);font-size:.7rem;color:var(--text-dim);margin-left:.2rem;vertical-align:top;padding-top:.5rem;display:inline-block;}
+.tier-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent-light);margin:.5rem 0 1rem;}
+.tier-desc{font-size:.8rem;color:var(--text-dim);line-height:1.7;}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:3rem 0;}
+.pay-card{background:var(--surface);padding:2.5rem;}
+.pay-head{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;}
+.pay-head::before{content:'';width:16px;height:1px;background:var(--accent-light);}
+.upi-id{font-family:var(--mono);font-size:1.1rem;color:var(--accent-light);background:var(--void);border:1px solid rgba(82,183,136,.25);padding:.7rem 1.1rem;display:inline-block;margin:.5rem 0 1rem;letter-spacing:.06em;}
+.copy-btn{font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;background:transparent;border:1px solid var(--border2);color:var(--text-dim);padding:.3rem .8rem;cursor:pointer;transition:all .2s;}
+.copy-btn:hover{border-color:var(--accent-light);color:var(--accent-light);}
+.bank-row{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--border);font-size:.82rem;}
+.bank-row:last-child{border:none;}
+.bank-key{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);}
+.bank-val{color:var(--mist);font-family:var(--mono);font-size:.78rem;}
+.impact-strip{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:4rem 0;}
+.impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);}
+.ic{background:var(--void);padding:2rem 1.75rem;}
+.ic-num{font-family:var(--serif);font-size:2.6rem;font-weight:300;color:var(--gold);line-height:1;}
+.ic-label{font-family:var(--mono);font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim);margin-top:.4rem;}
+.ic-desc{font-size:.8rem;color:var(--text-dim);line-height:1.65;margin-top:.6rem;}
+.cert-box{background:rgba(58,125,92,.07);border:1px solid rgba(58,125,92,.2);padding:1.25rem 1.75rem;display:flex;align-items:flex-start;gap:1rem;margin-top:2rem;}
+.cert-icon{font-size:1.4rem;flex-shrink:0;margin-top:.1rem;}
+.cert-text{font-size:.82rem;color:var(--text-dim);line-height:1.7;}
+.cert-text strong{color:var(--accent-light);}
+.qr-placeholder{width:140px;height:140px;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.5rem;font-family:var(--mono);font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin:1rem 0;}
+.qr-inner{width:100px;height:100px;background:white;display:flex;align-items:center;justify-content:center;}
+@media(max-width:900px){
+  .tiers{grid-template-columns:1fr 1fr;}.pay-grid{grid-template-columns:1fr;}.impact-grid{grid-template-columns:1fr;}
+}
+@media(max-width:480px){.tiers{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="don-hero">
+  <div class="don-inner">
+    <div class="ih-breadcrumb"><a href="{{ url_for('home') }}">Wild-CER</a><span>/</span>Donate</div>
+    <div class="ih-label reveal">Support Our Mission</div>
+    <h1 class="ih-h1 reveal" data-delay="60">Every Rupee Saves a<br><em style="font-style:italic;color:var(--gold);">Wild Life</em></h1>
+    <p style="font-size:.92rem;color:var(--text-dim);line-height:1.85;max-width:520px;margin-top:1.1rem;" class="reveal" data-delay="100">Wild-CER has rescued 52,000+ animals across 10 states. Your contribution directly funds veterinary care, rescue operations, and conservation education across Central India's protected forests.</p>
+    <div class="cert-box reveal" data-delay="140" style="max-width:540px;margin-top:1.5rem;">
+      <div class="cert-icon">🛡️</div>
+      <div class="cert-text">Donations are <strong>tax-exempt under Section 80G</strong> of the Income Tax Act, 1961. You will receive an official 80G receipt for your records.</div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPACT TIERS -->
+<section style="padding:5rem 0;background:var(--void);">
+  <div class="wrap">
+    <div class="label reveal">Your Impact</div>
+    <h2 class="display-title reveal" data-delay="60">Choose a <em>Giving Level</em></h2>
+    <div class="tiers">
+      <div class="tier reveal">
+        <div class="tier-badge">Supporter</div>
+        <div class="tier-amount">₹500<span class="tier-currency"></span></div>
+        <div class="tier-label">Per Month</div>
+        <div class="tier-desc">Covers basic medical supplies for one rescued wild animal — bandages, antiseptics, and nutrition for recovery.</div>
+      </div>
+      <div class="tier featured reveal" data-delay="60">
+        <div class="tier-badge">🌟 Most Popular — Rescuer</div>
+        <div class="tier-amount">₹2,000<span class="tier-currency"></span></div>
+        <div class="tier-label">Per Month</div>
+        <div class="tier-desc">Funds one complete wildlife rescue operation including transport, veterinary consultation, and initial treatment.</div>
+      </div>
+      <div class="tier reveal" data-delay="100">
+        <div class="tier-badge">Guardian</div>
+        <div class="tier-amount">₹5,000<span class="tier-currency"></span></div>
+        <div class="tier-label">Per Month</div>
+        <div class="tier-desc">Sponsors a full month of care and rehabilitation for a rescued animal — food, medication, and expert veterinary monitoring.</div>
+      </div>
+      <div class="tier reveal" data-delay="140">
+        <div class="tier-badge">Conservation Champion</div>
+        <div class="tier-amount">₹10,000<span class="tier-currency"></span></div>
+        <div class="tier-label">One Time</div>
+        <div class="tier-desc">Funds a community education workshop reaching 50+ villagers on human-wildlife coexistence and emergency reporting.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAYMENT METHODS -->
+<section style="padding:2rem 0 5rem;background:var(--void);">
+  <div class="wrap">
+    <div class="label reveal">How to Donate</div>
+    <h2 class="display-title reveal" data-delay="60">Payment <em>Methods</em></h2>
+    <div class="pay-grid">
+
+      <!-- UPI -->
+      <div class="pay-card reveal">
+        <div class="pay-head">UPI / QR Code</div>
+        <p style="font-size:.83rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.25rem;">Scan the QR code below or use the UPI ID to donate instantly from any UPI app — Google Pay, PhonePe, Paytm, BHIM.</p>
+        <div class="qr-placeholder">
+          <div class="qr-inner">
+            <!-- UPI QR Placeholder — replace with actual QR image -->
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="80" height="80" fill="white"/>
+              <rect x="5" y="5" width="28" height="28" fill="none" stroke="black" stroke-width="4"/>
+              <rect x="12" y="12" width="14" height="14" fill="black"/>
+              <rect x="47" y="5" width="28" height="28" fill="none" stroke="black" stroke-width="4"/>
+              <rect x="54" y="12" width="14" height="14" fill="black"/>
+              <rect x="5" y="47" width="28" height="28" fill="none" stroke="black" stroke-width="4"/>
+              <rect x="12" y="54" width="14" height="14" fill="black"/>
+              <rect x="47" y="47" width="8" height="8" fill="black"/>
+              <rect x="59" y="47" width="8" height="8" fill="black"/>
+              <rect x="47" y="59" width="8" height="8" fill="black"/>
+              <rect x="59" y="59" width="8" height="8" fill="black"/>
+              <rect x="35" y="5" width="6" height="6" fill="black"/>
+              <rect x="35" y="35" width="6" height="6" fill="black"/>
+              <rect x="5" y="35" width="6" height="6" fill="black"/>
+            </svg>
+          </div>
+          <span>Scan with any UPI app</span>
+        </div>
+        <div style="margin-bottom:.5rem;font-family:var(--mono);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);">UPI ID</div>
+        <div class="upi-id" id="upi-id">wildcer@axisbank</div>
+        <br>
+        <button class="copy-btn" onclick="copyUPI()">📋 Copy UPI ID</button>
+        <p style="font-size:.75rem;color:var(--text-dim);margin-top:1rem;line-height:1.6;">After payment, please <a href="{{ url_for('contact') }}" style="color:var(--accent-light);">email us</a> your transaction ID and name for your 80G receipt.</p>
+      </div>
+
+      <!-- Bank Transfer -->
+      <div class="pay-card reveal" data-delay="80">
+        <div class="pay-head">NEFT / RTGS / Bank Transfer</div>
+        <p style="font-size:.83rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.25rem;">Transfer directly to our registered bank account. Please mention your name and "Donation" in the remarks.</p>
+        <div class="bank-row"><span class="bank-key">Account Name</span><span class="bank-val">Wild-CER</span></div>
+        <div class="bank-row"><span class="bank-key">Bank</span><span class="bank-val">Axis Bank</span></div>
+        <div class="bank-row"><span class="bank-key">Account No.</span><span class="bank-val">921020042699008</span></div>
+        <div class="bank-row"><span class="bank-key">IFSC Code</span><span class="bank-val">UTIB0001377</span></div>
+        <div class="bank-row"><span class="bank-key">Branch</span><span class="bank-val">Katol Road, Nagpur</span></div>
+        <div class="bank-row"><span class="bank-key">Account Type</span><span class="bank-val">Current</span></div>
+        <div style="margin-top:1.5rem;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);padding:.85rem 1rem;">
+          <p style="font-size:.78rem;color:var(--text-dim);line-height:1.65;">After transfer, email your UTR number to <a href="mailto:info@wildcer.org" style="color:var(--accent-light);">info@wildcer.org</a> with subject "Donation – [Your Name]" to receive your 80G certificate within 7 working days.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Cheque -->
+    <div style="background:var(--surface);border:1px solid var(--border);padding:2rem 2.5rem;margin-top:1px;" class="reveal">
+      <div class="pay-head" style="margin-bottom:1rem;">Cheque / Demand Draft</div>
+      <p style="font-size:.83rem;color:var(--text-dim);line-height:1.75;">Make cheque/DD payable to <strong style="color:var(--mist);">Wild-CER</strong> and post to:<br><br>
+      <strong style="color:var(--mist);">Wild-CER — Society for Wildlife Conservation, Education & Research</strong><br>
+      Katol Road, Nagpur 440013, Maharashtra, India<br><br>
+      Please include your name, address and PAN number for 80G certification.</p>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT NUMBERS -->
+<section class="impact-strip">
+  <div class="wrap">
+    <div class="label reveal">Your Donation at Work</div>
+    <h2 class="display-title reveal" data-delay="60" style="margin-bottom:3rem;">Real Impact, <em>Real Animals</em></h2>
+    <div class="impact-grid">
+      <div class="ic reveal"><div class="ic-num"><span data-target="52000" data-suffix="+">0</span></div><div class="ic-label">Animals Supported</div><div class="ic-desc">Across 17 mammal species, 100+ bird species and 15 reptile species rescued and rehabilitated since 2012.</div></div>
+      <div class="ic reveal" data-delay="80"><div class="ic-num"><span data-target="2800" data-suffix="+">0</span></div><div class="ic-label">Forest Staff Trained</div><div class="ic-desc">Frontline forest department staff trained in wildlife rescue protocols and One Health practices.</div></div>
+      <div class="ic reveal" data-delay="160"><div class="ic-num"><span data-target="1800" data-suffix="+">0</span></div><div class="ic-label">Vets Trained</div><div class="ic-desc">Veterinarians trained across India in wildlife medicine, chemical immobilisation and conservation science.</div></div>
+    </div>
+    <div class="cert-box reveal" style="margin-top:2.5rem;">
+      <div class="cert-icon">📜</div>
+      <div class="cert-text">Wild-CER is registered under the Foreign Contribution (Regulation) Act (FCRA). <strong>International donations are accepted.</strong> For international wire transfers, please contact <a href="mailto:info@wildcer.org" style="color:var(--accent-light);">info@wildcer.org</a> for SWIFT/IBAN details.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="padding:5rem 0;text-align:center;background:var(--void);border-top:1px solid var(--border);">
+  <div class="wrap">
+    <div class="label reveal" style="justify-content:center;">Questions?</div>
+    <h2 class="display-title reveal" data-delay="60" style="margin-bottom:1rem;">Need Help with <em>Your Donation?</em></h2>
+    <p class="reveal" data-delay="100" style="font-size:.88rem;color:var(--text-dim);max-width:420px;margin:0 auto 2rem;line-height:1.8;">Our team is happy to assist with corporate donations, CSR partnerships, or bulk giving. Reach out directly.</p>
+    <div style="display:flex;gap:.85rem;justify-content:center;flex-wrap:wrap;" class="reveal" data-delay="140">
+      <a href="mailto:info@wildcer.org" class="btn-primary">✉ Email Us</a>
+      <a href="{{ url_for('csr') }}" class="btn-ghost">CSR Partnerships →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>
+function copyUPI(){
+  const id=document.getElementById('upi-id').textContent;
+  navigator.clipboard.writeText(id).then(()=>{
+    const btn=document.querySelector('.copy-btn');
+    btn.textContent='✓ Copied!';btn.style.color='var(--accent-light)';btn.style.borderColor='var(--accent-light)';
+    setTimeout(()=>{btn.textContent='📋 Copy UPI ID';btn.style.color='';btn.style.borderColor='';},2000);
+  });
+}
+</script>
+{% endblock %}

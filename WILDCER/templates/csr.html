@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}CSR Partnership — Wild-CER{% endblock %}
+{% block content %}
+<div class="inner-hero">
+  <div class="ih-inner">
+    <div class="ih-breadcrumb"><a href="{{ url_for('home') }}">Wild-CER</a><span>/</span>CSR Partnership</div>
+    <div class="ih-label">Corporate</div>
+    <h1 class="ih-h1">CSR Partnership</h1>
+  </div>
+</div>
+
+<section style="padding:6rem 0;"><div class="wrap"><div style="display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;">
+  <div class="reveal-left">
+    <div class="label">Corporate Partners</div>
+    <h2 class="display-title" style="margin-bottom:1.5rem;">Partner for <em>Meaningful</em> Impact</h2>
+    <p style="font-size:.9rem;color:var(--text-dim);line-height:1.85;margin-bottom:1rem;">Wild-CER offers CSR partnerships for companies that wish to contribute meaningfully to wildlife conservation, One Health initiatives and environmental education.</p>
+    <p style="font-size:.9rem;color:var(--text-dim);line-height:1.85;margin-bottom:1.75rem;">Our CSR programmes align with your sustainability goals while creating direct, measurable impact for India's endangered wildlife.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-top:1rem;">
+<div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; Rescue Unit sponsorship</div><div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; Veterinary training funding</div><div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; Plantation & habitat work</div><div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; School education campaigns</div><div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; Research support</div><div style="background:var(--surface);padding:1rem 1.25rem;font-size:.82rem;color:var(--text-dim);">&#9679; Employee volunteering</div>
+    </div>
+    <div style="margin-top:2rem;"><a href="{{ url_for('contact') }}" class="btn-primary">Get in Touch</a></div>
+  </div>
+  <div class="reveal" data-delay="80">
+    <div style="background:var(--surface);border:1px solid var(--border);padding:2.25rem;">
+      <div class="label" style="margin-bottom:1.25rem;">Why Wild-CER?</div>
+<div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>Registered non-profit — 80G tax exemption</div><div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>Transparent reporting & impact documentation</div><div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>Field visits and corporate volunteering access</div><div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>National and international media visibility</div><div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>IUCN-associated organisation</div><div style="padding:.7rem 0;border-bottom:1px solid var(--border);font-size:.84rem;color:var(--text-dim);display:flex;gap:.7rem;align-items:flex-start;"><span style="color:var(--gold);">&#9654;</span>12+ years of track record in Central India</div>
+      <a href="{{ url_for('contact') }}" class="btn-ghost" style="margin-top:1.5rem;font-size:.65rem;padding:.5rem 1rem;">Get in Touch &#8594;</a>
+    </div>
+    <img src="https://wildcer.org/wp-content/uploads/2026/02/WhatsApp-Image-2026-02-05-at-07.41.13.jpeg" style="width:100%;margin-top:1px;display:block;opacity:.8;"/>
+  </div>
+</div></div></section>
+{% endblock %}

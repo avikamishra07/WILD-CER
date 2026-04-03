@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>{% block title %}Wild-CER — Conservation Education Research{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Syne:wght@400;500;600;700;800&family=Syne+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ── TOKENS ─────────────────────────────────────────────────────── */
+:root{
+  --void:#06090a;
+  --surface:#0c1012;
+  --surface2:#131a1c;
+  --border:rgba(255,255,255,.07);
+  --border2:rgba(255,255,255,.13);
+  --gold:#c9a84c;
+  --gold-dim:rgba(201,168,76,.15);
+  --ember:#d45a2a;
+  --mist:#e8e2d6;
+  --text:rgba(232,226,214,.88);
+  --text-dim:rgba(232,226,214,.42);
+  --accent:#3a7d5c;
+  --accent-light:#52b788;
+  --serif:'Cormorant',Georgia,serif;
+  --sans:'Syne',sans-serif;
+  --mono:'Syne Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;cursor:auto;}
+body{font-family:var(--sans);background:var(--void);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ── CUSTOM CURSOR ─────────────────────────────────────────────── */
+.cur{display:none;}
+
+/* ── NOISE OVERLAY ─────────────────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity:.5;}
+
+/* ── NAV ────────────────────────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:500;padding:0 2.5rem;height:64px;display:flex;align-items:center;gap:2rem;transition:background .4s,border-color .4s;border-bottom:1px solid transparent;}
+.nav.scrolled{background:rgba(6,9,10,.92);backdrop-filter:blur(16px);border-bottom-color:var(--border);}
+.nav-logo{display:flex;align-items:center;gap:1rem;text-decoration:none;flex-shrink:0;}
+.logo-img{height:36px;opacity:.95;}
+.logo-word{font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--text-dim);line-height:1.3;}
+.logo-word strong{display:block;font-size:.55rem;color:var(--accent-light);letter-spacing:.25em;}
+.nav-links{display:flex;align-items:center;gap:0;margin-left:auto;}
+.nl{font-family:var(--sans);font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);text-decoration:none;padding:.5rem 1rem;position:relative;transition:color .2s;}
+.nl::after{content:'';position:absolute;bottom:.3rem;left:1rem;right:1rem;height:1px;background:var(--gold);transform:scaleX(0);transition:transform .25s;}
+.nl:hover,.nl.active{color:var(--mist);}
+.nl:hover::after,.nl.active::after{transform:scaleX(1);}
+.nav-donate{margin-left:1rem;display:flex;align-items:center;gap:.5rem;}
+.btn-nd{font-family:var(--sans);font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;padding:.5rem 1.25rem;border-radius:2px;transition:all .2s;cursor:pointer;}
+.btn-nd.outline{color:var(--gold);border:1px solid rgba(201,168,76,.4);background:transparent;}
+.btn-nd.outline:hover{background:var(--gold-dim);border-color:var(--gold);}
+.btn-nd.fill{background:var(--ember);color:#fff;border:1px solid transparent;}
+.btn-nd.fill:hover{background:#b84a20;}
+.nav-tog{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:0;margin-left:1rem;}
+.nav-tog span{width:24px;height:1.5px;background:var(--text-dim);transition:all .3s;}
+
+/* ── FLASH ─────────────────────────────────────────────────────── */
+.flash-wrap{position:fixed;top:80px;right:2rem;z-index:600;display:flex;flex-direction:column;gap:.5rem;pointer-events:none;}
+.flash-item{background:var(--surface2);border:1px solid var(--border2);border-left:2px solid var(--accent-light);color:var(--mist);padding:.7rem 1.1rem;font-size:.78rem;font-family:var(--sans);display:flex;align-items:center;gap:.6rem;min-width:260px;pointer-events:all;animation:fslide .3s ease;}
+.flash-item.danger{border-left-color:var(--ember);}
+.flash-item.warning{border-left-color:var(--gold);}
+.fcls{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:.9rem;}
+.fcls:hover{color:var(--mist);}
+@keyframes fslide{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:none;}}
+
+/* ── PAGE ───────────────────────────────────────────────────────── */
+.page{padding-top:64px;}
+
+/* ── INNER HERO ─────────────────────────────────────────────────── */
+.inner-hero{padding:5rem 0 4rem;position:relative;border-bottom:1px solid var(--border);}
+.inner-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 20% 50%,rgba(58,125,92,.07) 0%,transparent 70%);}
+.ih-inner{max-width:1200px;margin:0 auto;padding:0 2.5rem;position:relative;}
+.ih-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-light);margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;}
+.ih-label::before{content:'';width:24px;height:1px;background:var(--accent-light);}
+.ih-h1{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);font-weight:300;color:var(--mist);line-height:1.1;letter-spacing:-.01em;}
+.ih-breadcrumb{font-size:.68rem;font-family:var(--mono);color:var(--text-dim);margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem;}
+.ih-breadcrumb a{color:var(--text-dim);text-decoration:none;transition:color .2s;}
+.ih-breadcrumb a:hover{color:var(--gold);}
+.ih-breadcrumb span{opacity:.4;}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────── */
+.wrap{max-width:1200px;margin:0 auto;padding:0 2.5rem;}
+
+/* ── BUTTONS ────────────────────────────────────────────────────── */
+.btn-primary{display:inline-flex;align-items:center;gap:.6rem;background:var(--accent);color:#fff;text-decoration:none;padding:.75rem 1.75rem;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));}
+.btn-primary:hover{background:var(--accent-light);color:#fff;}
+.btn-ghost{display:inline-flex;align-items:center;gap:.6rem;background:transparent;color:var(--gold);text-decoration:none;padding:.72rem 1.7rem;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(201,168,76,.35);cursor:pointer;transition:all .2s;}
+.btn-ghost:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+.btn-ember{display:inline-flex;align-items:center;gap:.6rem;background:var(--ember);color:#fff;text-decoration:none;padding:.75rem 1.75rem;font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s;}
+.btn-ember:hover{background:#b84a20;color:#fff;}
+
+/* ── SECTION LABEL ─────────────────────────────────────────────── */
+.label{font-family:var(--mono);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent-light);display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+.label::before{content:'';width:20px;height:1px;background:var(--accent-light);}
+.display-title{font-family:var(--serif);font-weight:300;font-size:clamp(2rem,4vw,3.2rem);color:var(--mist);line-height:1.15;letter-spacing:-.01em;}
+.display-title em{font-style:italic;color:var(--gold);}
+
+/* ── DIVIDER ────────────────────────────────────────────────────── */
+.hr{border:none;border-top:1px solid var(--border);margin:0;}
+
+/* ── REVEAL ─────────────────────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-left{opacity:0;transform:translateX(-22px);transition:opacity .7s ease,transform .7s ease;}
+.reveal-left.visible{opacity:1;transform:none;}
+
+/* ── FOOTER ─────────────────────────────────────────────────────── */
+.footer{background:var(--surface);border-top:1px solid var(--border);padding:4rem 0 2rem;}
+.footer-logo{height:38px;opacity:.9;margin-bottom:1rem;}
+.footer-name{font-family:var(--serif);font-size:1.4rem;font-weight:500;color:var(--mist);}
+.footer-tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent-light);margin-top:.2rem;}
+.footer-p{font-size:.8rem;color:var(--text-dim);line-height:1.75;max-width:280px;margin-top:.9rem;}
+.fhd{font-family:var(--mono);font-size:.6rem;font-weight:400;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1rem;opacity:.55;}
+.flink{display:block;color:var(--text-dim);text-decoration:none;font-size:.8rem;padding:.2rem 0;transition:color .2s;font-family:var(--sans);}
+.flink:hover{color:var(--gold);}
+.footer-social{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap;}
+.fsoc-a{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:var(--text-dim);text-decoration:none;padding:.3rem .65rem;border:1px solid var(--border2);transition:all .2s;}
+.fsoc-a:hover{color:var(--mist);border-color:rgba(255,255,255,.25);}
+.footer-bottom{border-top:1px solid var(--border);margin-top:3rem;padding-top:1.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-family:var(--mono);font-size:.6rem;color:rgba(232,226,214,.2);letter-spacing:.1em;}
+.footer-emergency{background:rgba(212,90,42,.1);border:1px solid rgba(212,90,42,.25);padding:.7rem 1.25rem;display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;color:#e08070;text-decoration:none;margin-top:1.25rem;transition:all .2s;}
+.footer-emergency:hover{background:rgba(212,90,42,.2);color:#f09080;}
+
+/* ── MOBILE ─────────────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .nav-links{display:none;}.nav-tog{display:flex;}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:64px;left:0;right:0;background:rgba(6,9,10,.97);backdrop-filter:blur(20px);padding:2rem 2.5rem 3rem;gap:.5rem;border-bottom:1px solid var(--border);z-index:500;}
+  .nav-links.open .nl{font-size:.85rem;padding:.7rem 0;}
+  .nav-links.open .nav-donate{margin-left:0;margin-top:.5rem;display:flex;gap:.5rem;}
+  .btn-nd{display:inline-flex;}
+}
+@media(max-width:640px){
+  html{cursor:auto;}.cur{display:none;}
+  .nav{padding:0 1.5rem;}
+  .wrap{padding:0 1.5rem;}
+  .ih-inner{padding:0 1.5rem;}
+}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cur" id="cur-dot" style="top:0;left:0"><div class="cur-dot"></div></div>
+<div class="cur" id="cur-ring" style="top:0;left:0"><div class="cur-ring"></div></div>
+
+<!-- NAV -->
+<nav class="nav" id="main-nav">
+  <a href="{{ url_for('home') }}" class="nav-logo">
+    <img src="https://wildcer.org/wp-content/uploads/2024/11/Wild-CER-HD-color-logo-scaled.jpg" class="logo-img" alt="Wild-CER"/>
+    <div class="logo-word">Wild-CER <strong>Conservation · Education · Research</strong></div>
+  </a>
+  <div class="nav-links" id="nav-links">
+    <a href="{{ url_for('home') }}" class="nl {% if request.endpoint=='home' %}active{% endif %}">Home</a>
+    <a href="{{ url_for('about') }}" class="nl {% if request.endpoint=='about' %}active{% endif %}">About</a>
+    <a href="{{ url_for('our_work') }}" class="nl {% if request.endpoint=='our_work' %}active{% endif %}">Our Work</a>
+    <a href="{{ url_for('opportunities') }}" class="nl {% if request.endpoint=='opportunities' %}active{% endif %}">Volunteer</a>
+    <a href="{{ url_for('publications') }}" class="nl {% if request.endpoint=='publications' %}active{% endif %}">Publications</a>
+    <a href="{{ url_for('csr') }}" class="nl {% if request.endpoint=='csr' %}active{% endif %}">CSR</a>
+    <a href="{{ url_for('support') }}" class="nl {% if request.endpoint=='support' %}active{% endif %}">Support</a>
+    <a href="{{ url_for('contact') }}" class="nl {% if request.endpoint=='contact' %}active{% endif %}">Contact</a>
+    <div class="nav-donate">
+      {% if official_logged_in %}
+        <a href="{{ url_for('dashboard') }}" class="btn-nd outline">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn-nd outline" style="color:var(--text-dim);border-color:var(--border);">Logout</a>
+      {% else %}
+        <a href="{{ url_for('wildlife_rescue') }}" class="btn-nd outline">&#9650; Rescue</a>
+        <a href="{{ url_for('donate') }}" class="btn-nd fill">Donate</a>
+        <a href="{{ url_for('login') }}" class="btn-nd outline" style="color:rgba(232,226,214,.25);border-color:rgba(255,255,255,.06);font-size:.58rem;letter-spacing:.1em;" title="NGO Staff Login">&#x1F512;</a>
+      {% endif %}
+    </div>
+  </div>
+  <button class="nav-tog" id="nav-tog" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}
+<div class="flash-wrap">
+  {% for cat,msg in messages %}
+  <div class="flash-item {{ cat }}"><span>{{ msg }}</span><button class="fcls" onclick="this.parentElement.remove()">✕</button></div>
+  {% endfor %}
+</div>
+{% endif %}{% endwith %}
+
+<div class="page">{% block content %}{% endblock %}</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:3rem;flex-wrap:wrap;" class="footer-grid">
+      <div style="grid-column:1/2;">
+        <img src="https://wildcer.org/wp-content/uploads/2024/11/Wild-CER-HD-color-logo-scaled.jpg" class="footer-logo" alt="Wild-CER"/>
+        <div class="footer-name">Wild-CER</div>
+        <div class="footer-tag">Conservation · Education · Research</div>
+        <p class="footer-p">A registered non-profit dedicated to the conservation of endangered species through the One Health approach. 10 States. 25 Protected Areas. 52,000+ Animals.</p>
+        <a href="{{ url_for('wildlife_rescue') }}" class="footer-emergency">&#9650; Report Wildlife Emergency</a>
+        <div class="footer-social">
+          <a href="https://www.facebook.com/Society-for-Wildlife-Conservation-Education-and-Research-174910669208097/" target="_blank" class="fsoc-a">FB</a>
+          <a href="https://www.instagram.com/wild_cer/" target="_blank" class="fsoc-a">IG</a>
+          <a href="https://twitter.com/WildCER" target="_blank" class="fsoc-a">TW</a>
+          <a href="https://www.youtube.com/channel/UCp_-RqQm1AERRM3ZDRrmpqQ" target="_blank" class="fsoc-a">YT</a>
+          <a href="https://www.linkedin.com/in/wild-cer-15a0541a2/" target="_blank" class="fsoc-a">LI</a>
+        </div>
+      </div>
+      <div>
+        <div class="fhd">Organisation</div>
+        <a href="{{ url_for('home') }}" class="flink">Home</a>
+        <a href="{{ url_for('about') }}" class="flink">About Us</a>
+        <a href="{{ url_for('our_work') }}" class="flink">Our Work</a>
+        <a href="{{ url_for('publications') }}" class="flink">Publications</a>
+        <a href="{{ url_for('csr') }}" class="flink">CSR Partnership</a>
+      </div>
+      <div>
+        <div class="fhd">Get Involved</div>
+        <a href="{{ url_for('opportunities') }}" class="flink">Volunteer</a>
+        <a href="{{ url_for('donate') }}" class="flink">Donate</a>
+        <a href="{{ url_for('wildlife_rescue') }}" class="flink">Report a Rescue</a>
+        <a href="https://forms.gle/UDVMFipP1pD2PXbG6" target="_blank" class="flink">Membership</a>
+        <a href="{{ url_for('contact') }}" class="flink">Contact Us</a>
+        <a href="{{ url_for('login') }}" class="flink" style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border);opacity:.45;font-size:.75rem;">&#x1F512; Staff Login</a>
+      </div>
+      <div>
+        <div class="fhd">Contact</div>
+        <p style="font-size:.79rem;color:var(--text-dim);line-height:1.85;">
+          Katol Road, Nagpur 440013<br>Maharashtra, India<br><br>
+          <a href="tel:+919922408432" style="color:var(--text-dim);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='var(--text-dim)'">+91 9922 408 432</a><br>
+          <a href="mailto:info@wildcer.org" style="color:var(--text-dim);text-decoration:none;transition:color .2s;" onmouseover="this.style.color='#c9a84c'" onmouseout="this.style.color='var(--text-dim)'">info@wildcer.org</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 Wild-CER — Society for Wildlife Conservation, Education & Research</span>
+      <span>Tax Exempt u/s 80G · Income Tax Act 1961</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Cursor */
+const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring');
+document.addEventListener('mousemove',e=>{dot.style.left=e.clientX+'px';dot.style.top=e.clientY+'px';ring.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;transition:left .12s,top .12s,width .3s,height .3s;`;});
+
+/* Nav scroll */
+const nav=document.getElementById('main-nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+
+/* Mobile toggle */
+document.getElementById('nav-tog').addEventListener('click',()=>{
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+/* Close on link click */
+document.querySelectorAll('.nl').forEach(l=>l.addEventListener('click',()=>document.getElementById('nav-links').classList.remove('open')));
+
+/* Flash auto-dismiss */
+setTimeout(()=>document.querySelectorAll('.flash-item').forEach(el=>{el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);}),5000);
+
+/* Reveal on scroll */
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){
+    const d=parseInt(e.target.dataset.delay||0);
+    setTimeout(()=>e.target.classList.add('visible'),d);
+    obs.unobserve(e.target);
+  }
+}),{threshold:.1});
+document.querySelectorAll('.reveal,.reveal-left').forEach(el=>obs.observe(el));
+
+/* Counter animation */
+function animateCount(el){
+  const target=parseInt(el.dataset.target);
+  let current=0;
+  const step=target/60;
+  const timer=setInterval(()=>{
+    current=Math.min(current+step,target);
+    el.textContent=Math.floor(current).toLocaleString()+(el.dataset.suffix||'');
+    if(current>=target)clearInterval(timer);
+  },20);
+}
+const countObs=new IntersectionObserver(entries=>entries.forEach(e=>{
+  if(e.isIntersecting){animateCount(e.target);countObs.unobserve(e.target);}
+}),{threshold:.5});
+document.querySelectorAll('[data-target]').forEach(el=>countObs.observe(el));
+
+/* Footer grid responsive */
+const fg=document.querySelector('.footer-grid');
+if(fg){
+  const mq=window.matchMedia('(max-width:768px)');
+  const upd=()=>fg.style.gridTemplateColumns=mq.matches?'1fr 1fr':'1fr 1fr 1fr 1fr';
+  mq.addEventListener('change',upd);upd();
+  const mq2=window.matchMedia('(max-width:480px)');
+  const upd2=()=>fg.style.gridTemplateColumns=mq2.matches?'1fr':'';
+  mq2.addEventListener('change',upd2);upd2();
+}
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>
